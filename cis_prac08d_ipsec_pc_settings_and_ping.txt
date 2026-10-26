@@ -1,0 +1,15 @@
+PC0 (connected to R1)
+IP Address      : 192.168.1.2
+Subnet Mask     : 255.255.255.0
+Default Gateway : 192.168.1.1
+
+PC1 (connected to R2)
+IP Address      : 192.168.2.2
+Subnet Mask     : 255.255.255.0
+Default Gateway : 192.168.2.1
+
+Test the tunnel from the Command Prompt of PC0:
+ping 192.168.2.2
+
+Test the tunnel from the Command Prompt of PC1:
+ping 192.168.1.2

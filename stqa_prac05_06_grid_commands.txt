@@ -1,0 +1,22 @@
+Step 1: create a folder C:\selenium and place the selenium-server JAR in it.
+
+Step 2: check the JAR. Open Command Prompt:
+cd C:\selenium
+java -jar selenium-server-4.46.0.jar info
+
+Step 3: start the Hub (first Command Prompt):
+cd C:\selenium
+java -jar selenium-server-4.46.0.jar hub
+The hub is available at http://localhost:4444
+
+Step 4: start a Node (second Command Prompt):
+cd C:\selenium
+java -jar selenium-server-4.46.0.jar node
+The node registers with the hub on its own and detects the installed browsers (Chrome, Firefox, Edge).
+
+Step 5 (optional, journal command for Firefox node, only if your node does not show Firefox):
+java -jar selenium-server-4.46.0.jar node --detect-drivers true
+
+Step 6: open http://localhost:4444 in a browser and check that the node and its browsers are listed.
+
+Step 7: run the Java program from Eclipse while the hub and node are running.

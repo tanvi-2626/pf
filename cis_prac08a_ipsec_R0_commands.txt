@@ -1,0 +1,12 @@
+enable
+configure terminal
+hostname R0
+interface g0/0
+ip address 30.0.0.2 255.255.255.252
+no shutdown
+exit
+interface g0/1
+ip address 20.0.0.2 255.255.255.252
+no shutdown
+exit
+exit

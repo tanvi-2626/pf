@@ -1,0 +1,22 @@
+Part 1: Block HTTP/HTTPS traffic
+1. Open any website in the browser and confirm HTTP/HTTPS works.
+2. Open Windows Defender Firewall, then click Advanced settings.
+3. Click Inbound Rules, then New Rule.
+4. Select Port and click Next.
+5. Select TCP, choose Specific local ports and enter: 80,443
+6. Click Next, select Block the connection, click Next.
+7. Keep the profiles selected, click Next.
+8. Name the rule (for example HTTPblock) and click Finish. The inbound rule is added.
+9. Repeat steps 3 to 8 under Outbound Rules.
+10. Try to open a website again. The access is blocked.
+
+Part 2: Block the website zero.webappsecurity.com
+1. Open zero.webappsecurity.com in the browser. It is accessible.
+2. Open Command Prompt and find the IP address:
+   nslookup zero.webappsecurity.com
+   (journal result: 54.82.22.214)
+3. Open Windows Defender Firewall > Advanced settings > Inbound Rules > New Rule.
+4. Add the IP addresses of the website (IPv4 and IPv6) as the remote IP addresses.
+5. Select Block the connection, give the rule a suitable name and click Finish.
+6. Repeat the same under Outbound Rules.
+7. Open zero.webappsecurity.com again. It is now blocked.

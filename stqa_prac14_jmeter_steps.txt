@@ -1,0 +1,23 @@
+Pre-requisites
+1. Download the JDK (journal: jdk-19.0.2_windows-x64_bin.exe) from the official website and install it.
+2. Download Apache JMeter:
+   - Open https://jmeter.apache.org/download_jmeter.cgi
+   - Under Apache JMeter 5.5.1 (requires Java 8+), in the Binaries sub-section, download apache-jmeter-5.5.1.zip
+3. Installation: extract the zip file. Go to apache-jmeter-5.5.1 > bin. ApacheJMeter.jar in this folder is your working file.
+
+Steps
+1. Open ApacheJMeter.jar and name your Test Plan.
+2. Save the test plan. It is saved with the .jmx extension.
+3. Create a Thread Group: right-click the Test Plan > Add > Threads (Users) > Thread Group. Name it myThread1.
+4. Under the thread group add a sampler: right-click myThread1 > Add > Sampler > HTTP Request.
+5. Visit any web page that has a path. Example: lifecharger.org/when-in-doubt-do-this/
+   In the HTTP Request set:
+   Server Name or IP : lifecharger.org
+   Path              : /when-in-doubt-do-this/
+6. Under the HTTP Request sampler add 2 listeners:
+   - Right-click HTTP Request > Add > Listener > View Results Tree
+   - Right-click HTTP Request > Add > Listener > View Results in Table
+7. Save and run the file and wait for a while. You will see some outputs.
+8. Now change some Thread Group properties: Number of Threads (users) = 10, Ramp-up period = 20, Loop Count = Forever.
+9. Save and run the file again and wait for a while. You will see continuous outputs. Click the Stop button to end the test.
+10. Finish.

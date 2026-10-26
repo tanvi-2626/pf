@@ -1,0 +1,19 @@
+Pre-requisites
+1. JDK is installed.
+2. Eclipse IDE is installed.
+3. Selenium Server and Client Driver (JAR files) are downloaded.
+4. Geckodriver is downloaded.
+5. A stable internet connection is available.
+
+Steps
+1. Open Eclipse, select your workspace directory and click Launch.
+2. Create a project: File > New > Java Project.
+3. Name the project (for example p3) and click Finish. Click Don't create module.
+4. Close the Welcome tab. Create a package: right-click the project > New > Package > enter the name > Finish.
+5. Create a class: right-click the package > New > Class > enter the name > Finish.
+6. Add the Selenium JAR files:
+   - Right-click the project > Build Path > Configure Build Path.
+   - Libraries > Classpath > Add External JARs.
+   - Browse to the JAR files, select them, click Apply and Close.
+7. Paste the Java code into the class. If geckodriver is not found, change the DRIVER_PATH value in the code to your geckodriver.exe path.
+8. Run the file: right-click the class > Run As > Java Application.

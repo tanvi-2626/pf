@@ -1,0 +1,20 @@
+1. Search Google for: Selenium IDE chrome. Open the first relevant result and add the Selenium IDE extension to the browser.
+2. We use redbus.in as the first website and check the Selenium IDE commands assertText, verifyTitle, storeText and echo.
+3. Open redbus.in in the browser, copy the URL of the page and open the Selenium IDE extension.
+4. In Selenium IDE choose Record a new test in a new project.
+   - Enter a suitable project name and click OK.
+   - In Set your project's base URL paste the RedBus URL.
+   - Click Start Recording.
+5. A new tab is opened. Maximize it. This is your working tab.
+   - In the working redbus.in tab right-click anywhere on the page and select Selenium IDE > Verify Title. Check that the verifyTitle command is recorded.
+   - Fill the FROM location, TO location and travel date fields.
+   - Click Search buses to continue (avoid unnecessary clicks).
+6. After the bus search results appear, find the bus provider name.
+   - Right-click it > Selenium IDE > Assert Text.
+7. Find the ticket price on the page.
+   - Right-click the price > Selenium IDE > Store Text to save the price for later use.
+   - Selenium IDE asks for a variable name. Enter: price and click OK.
+   - Confirm that Selenium IDE maps the selected element to its CSS target.
+8. Click the next empty line in Selenium IDE and enter the echo command with the variable ${price} to display the stored price.
+9. Run the current test. After it completes, check the Log area. You will see the echo output with the stored price, which means the value was stored in the variable price by storeText.
+10. Repeat the same steps for a second website to complete the suite. Finish.

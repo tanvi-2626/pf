@@ -1,0 +1,20 @@
+1. Open Google and search for: Selenium IDE chrome
+2. Open the first result and click Add to Chrome to install Selenium IDE.
+3. Create a web application in NetBeans: File > New Project > Java Web > Web Application > Add GlassFish Server > Finish.
+4. Open index.html and paste the Arithmetic Operations code (file index.html).
+5. Create a JSP file named newjsp.jsp with a link to index.html (file newjsp.jsp).
+6. Run newjsp.jsp from NetBeans. It opens in a browser.
+   - Open the Arithmetic Operations page using the link.
+   - Copy the page URL and open Selenium IDE.
+   - Create a new project and enter the project name.
+   - Paste the URL and click Start Recording.
+   - A new tab opens. Maximize it. This is the working tab.
+   - Perform the required actions on the Arithmetic Operations page.
+7. Click Stop Recording and give the test case a name such as addition.
+   - Save the project. It is saved with the .side extension.
+   - Run the addition test and check the result in the Log area of Selenium IDE.
+   Note 1: you can set the Test Execution speed.
+   Note 2: if a GlassFish error occurs between test cases, paste the URL again.
+8. Create 3 more test cases (subtraction, multiplication, division). Then click Run all tests.
+9. To export the WebDriver script: right-click the test suite > Export > select the language > Export.
+10. Finish.

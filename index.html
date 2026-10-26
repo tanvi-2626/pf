@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Practical Codes - BSc CS Sem V</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mut:#5f6b7a;--ac:#2457d6;--bd:#dde1e7;--code:#0f172a;--codetx:#e2e8f0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151a;--card:#1b2027;--tx:#e8ebef;--mut:#9aa6b5;--ac:#6b9bff;--bd:#2c333d;--code:#0a0d12;--codetx:#e2e8f0}}
+:root[data-theme="dark"]{--bg:#12151a;--card:#1b2027;--tx:#e8ebef;--mut:#9aa6b5;--ac:#6b9bff;--bd:#2c333d;--code:#0a0d12;--codetx:#e2e8f0}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{padding:16px 18px;border-bottom:1px solid var(--bd);background:var(--card)}
+header h1{margin:0;font-size:1.15rem}header p{margin:4px 0 0;color:var(--mut);font-size:.85rem}
+.wrap{display:flex;gap:16px;padding:16px;max-width:1200px;margin:auto}
+nav{width:300px;flex:none}
+#list{max-height:75vh;overflow-y:auto}
+nav input,nav select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);margin-bottom:10px}
+.item{display:block;width:100%;text-align:left;padding:9px 11px;margin-bottom:6px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);cursor:pointer;font-size:.88rem}
+.item small{display:block;color:var(--mut);margin-top:2px}
+.item.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+main{flex:1;min-width:0}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px}
+.card h2{margin:0 0 4px;font-size:1.05rem}
+.meta{color:var(--mut);font-size:.85rem;margin:2px 0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+button.act{padding:8px 14px;border:0;border-radius:8px;background:var(--ac);color:#fff;cursor:pointer;font-size:.88rem}
+button.act.alt{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+.fn{font-family:ui-monospace,Consolas,monospace;background:var(--bg);padding:2px 6px;border-radius:5px}
+pre{margin:0;background:var(--code);color:var(--codetx);padding:14px;border-radius:8px;overflow-x:auto;font-size:.82rem;line-height:1.5;tab-size:4}
+.tbl{max-height:70vh;overflow:auto;border:1px solid var(--bd);border-radius:8px}
+.tbl table{border-collapse:collapse;width:100%;font-size:.82rem}
+.tbl th,.tbl td{padding:6px 10px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+.tbl th{position:sticky;top:0;background:var(--card);font-weight:600}
+.tbl td:first-child,.tbl th:first-child{color:var(--mut)}
+.tbl tbody tr:nth-child(even){background:var(--bg)}
+@media (max-width:760px){.wrap{flex-direction:column}nav{width:100%}#list{max-height:40vh}}
+</style>
+</head>
+<body>
+<header><h1>Practical Code Library</h1><p>BSc Computer Science, Sem V (2025-26). Works fully offline.</p></header>
+<div class="wrap">
+<nav><select id="subj"></select><input id="q" type="search" placeholder="Search practical or file name"><div id="list"></div></nav>
+<main><div class="card" id="view"></div></main>
+</div>
+<script>
+const G1 = String.raw`graph = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F'],
+    'D': [],
+    'E': [],
+    'F': []
+}`;
+const G2 = String.raw`graph = {
+    'S': [('A', 1), ('B', 3), ('D', 2)],
+    'A': [('C', 4)],
+    'B': [('D', 5)],
+    'C': [('G', 3)],
+    'D': [('G', 1)],
+    'G': []
+}
+h = {'S': 8, 'A': 7, 'B': 6, 'C': 2, 'D': 1, 'G': 0}`;
+
+const BFS_FN = String.raw`def bfs(graph, start):
+    visited = set()
+    queue = deque([start])
+    visited.add(start)
+    order = []
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    return order`;
+const DFS_FN = String.raw`def dfs_iterative(graph, start):
+    visited = set()
+    stack = [start]
+    order = []
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            order.append(node)
+            visited.add(node)
+            for neighbor in reversed(graph[node]):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+    return order`;
+
+const T_LOAD = String.raw`import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+
+data = pd.read_csv("play_tennis.csv")
+data.columns = data.columns.str.replace(" ", "")
+data = pd.get_dummies(data)
+
+X = data.drop("PlayTennis_Yes", axis=1)
+y = data["PlayTennis_Yes"]`;
+
+const S_LOAD = String.raw`import pandas as pd
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+df = pd.read_csv("SVM_Binary_Classification_Dataset.csv")
+X = df[["Hours_Studied", "Attendance"]]
+y = df["Result"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)`;
+
+const A_LOAD = String.raw`from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)
+
+weak_model = DecisionTreeClassifier(max_depth=1)
+model = AdaBoostClassifier(estimator=weak_model,
+                           n_estimators=50,
+                           random_state=42)`;
+
+const N_LOAD = String.raw`import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB, CategoricalNB, GaussianNB
+from sklearn.metrics import (classification_report, accuracy_score,
+                             confusion_matrix, precision_score,
+                             recall_score, f1_score)
+
+df = pd.read_csv('diseases_extended.csv')
+
+le = LabelEncoder()
+for col in df.columns:
+    df[col] = le.fit_transform(df[col])
+
+X = df.drop('Diagnosis', axis=1)
+y = df['Diagnosis']`;
+
+const K_LOAD = String.raw`import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import (confusion_matrix, classification_report,
+                             accuracy_score, roc_curve, roc_auc_score)
+
+plt.style.use('ggplot')
+
+df = pd.read_csv('diabetes.csv')
+X = df.drop('Outcome', axis=1).values
+y = df['Outcome'].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.4, random_state=42, stratify=y)`;
+
+const NO = "No dataset needed.";
+const AI = [
+{file:"prac01a_bfs.py",prac:"Practical 1A",title:"Breadth First Search",aim:"Implement the Breadth First Search algorithm to solve a given problem.",needs:NO,code:String.raw`from collections import deque
+
+${G1}
+
+def bfs(graph, start):
+    visited = set()
+    queue = deque([start])
+    visited.add(start)
+    print("BFS Traversal:")
+    while queue:
+        node = queue.popleft()
+        print(node, end=" ")
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+bfs(graph, 'A')
+`},
+{file:"prac01b_dfs_iterative.py",prac:"Practical 1B",title:"Iterative Depth First Search",aim:"Implement the Iterative Depth First Search algorithm to solve the same problem.",needs:NO,code:String.raw`${G1}
+
+def dfs_iterative(graph, start):
+    visited = set()
+    stack = [start]
+    print("DFS Traversal:")
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            print(node, end=" ")
+            visited.add(node)
+            for neighbor in reversed(graph[node]):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+
+dfs_iterative(graph, 'A')
+`},
+{file:"prac01c_compare_bfs_dfs.py",prac:"Practical 1C",title:"Compare BFS and Iterative DFS",aim:"Compare the performance and efficiency of both algorithms.",needs:NO,code:String.raw`import time
+from collections import deque
+
+${G1}
+
+${BFS_FN}
+
+${DFS_FN}
+
+runs = 100000
+
+for name, func in (("BFS", bfs), ("Iterative DFS", dfs_iterative)):
+    start_time = time.perf_counter()
+    for _ in range(runs):
+        order = func(graph, 'A')
+    elapsed = time.perf_counter() - start_time
+    print(name)
+    print("  Traversal order :", " ".join(order))
+    print("  Nodes visited   :", len(order))
+    print("  Time for", runs, "runs: {:.4f} sec".format(elapsed))
+
+print()
+print("Time complexity  : BFS O(V + E), DFS O(V + E)")
+print("Space complexity : BFS O(V), DFS O(V)")
+print("BFS uses a queue and finds the shortest path in an unweighted graph.")
+print("DFS uses a stack and needs less memory but gives no shortest path guarantee.")
+`},
+{file:"prac02a_astar.py",prac:"Practical 2A",title:"A* Search",aim:"Implement the A* Search algorithm for solving a pathfinding problem.",needs:NO,code:String.raw`import heapq
+
+${G2}
+
+start_node = 'S'
+goal_node = 'G'
+
+pq = [(h[start_node], 0, start_node, [start_node])]
+
+while pq:
+    f, g, node, path = heapq.heappop(pq)
+    if node == goal_node:
+        print("Path:", " -> ".join(path))
+        print("Cost:", g)
+        break
+    for nxt, cost in graph[node]:
+        heapq.heappush(pq, (g + cost + h[nxt], g + cost, nxt, path + [nxt]))
+`},
+{file:"prac02b_rbfs.py",prac:"Practical 2B",title:"Recursive Best-First Search",aim:"Implement the Recursive Best-First Search algorithm for the same problem.",needs:NO,code:String.raw`${G2}
+
+def rbfs(node, goal, cost, path):
+    if node == goal:
+        print("Path:", " -> ".join(path))
+        print("Cost:", cost)
+        return True
+    if not graph[node]:
+        return False
+    graph[node].sort(key=lambda x: cost + x[1] + h[x[0]])
+    for nxt, c in graph[node]:
+        if rbfs(nxt, goal, cost + c, path + [nxt]):
+            return True
+    return False
+
+rbfs('S', 'G', 0, ['S'])
+`},
+{file:"prac02c_compare_astar_rbfs.py",prac:"Practical 2C",title:"Compare A* and RBFS",aim:"Compare the performance and effectiveness of both algorithms.",needs:NO,code:String.raw`import heapq
+import time
+
+${G2}
+
+def astar(start, goal):
+    expanded = 0
+    pq = [(h[start], 0, start, [start])]
+    while pq:
+        f, g, node, path = heapq.heappop(pq)
+        expanded += 1
+        if node == goal:
+            return path, g, expanded
+        for nxt, cost in graph[node]:
+            heapq.heappush(pq, (g + cost + h[nxt], g + cost, nxt, path + [nxt]))
+    return None, 0, expanded
+
+def rbfs(node, goal, cost, path, counter):
+    counter[0] += 1
+    if node == goal:
+        return path, cost
+    if not graph[node]:
+        return None
+    children = sorted(graph[node], key=lambda x: cost + x[1] + h[x[0]])
+    for nxt, c in children:
+        result = rbfs(nxt, goal, cost + c, path + [nxt], counter)
+        if result:
+            return result
+    return None
+
+runs = 20000
+
+t = time.perf_counter()
+for _ in range(runs):
+    a_path, a_cost, a_exp = astar('S', 'G')
+a_time = time.perf_counter() - t
+
+t = time.perf_counter()
+for _ in range(runs):
+    counter = [0]
+    r_path, r_cost = rbfs('S', 'G', 0, ['S'], counter)
+r_time = time.perf_counter() - t
+
+print("{:<8}{:<14}{:<7}{:<16}{}".format("Algo", "Path", "Cost", "Nodes expanded", "Time"))
+print("{:<8}{:<14}{:<7}{:<16}{:.4f}s".format("A*", "->".join(a_path), a_cost, a_exp, a_time))
+print("{:<8}{:<14}{:<7}{:<16}{:.4f}s".format("RBFS", "->".join(r_path), r_cost, counter[0], r_time))
+
+print()
+print("A* : stores all generated nodes in a priority queue, high memory O(b^d).")
+print("RBFS: keeps only the current path, low memory O(bd), may revisit nodes.")
+print("Both give the optimal path when the heuristic is admissible.")
+`},
+{file:"prac03a_decision_tree_build.py",prac:"Practical 3A",title:"Decision Tree - Build the tree",aim:"Implement the Decision Tree Learning algorithm to build a decision tree for a given dataset.",needs:"Needs play_tennis.csv in the same folder. Install: pip install pandas scikit-learn",code:String.raw`${T_LOAD}
+
+model = DecisionTreeClassifier()
+model.fit(X, y)
+
+prediction = model.predict(X.iloc[[0]])
+print("Prediction:", "Yes" if prediction[0] == 1 else "No")
+`},
+{file:"prac03b_decision_tree_evaluate.py",prac:"Practical 3B",title:"Decision Tree - Evaluate accuracy",aim:"Evaluate the accuracy and effectiveness of the decision tree on test data.",needs:"Needs play_tennis.csv in the same folder. Install: pip install pandas scikit-learn",code:String.raw`${T_LOAD}
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)
+
+model = DecisionTreeClassifier(random_state=42)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Accuracy: {:.2f}%".format(accuracy_score(y_test, y_pred) * 100))
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+`},
+{file:"prac03c_decision_tree_visualize.py",prac:"Practical 3C",title:"Decision Tree - Visualize",aim:"Visualize and interpret the generated decision tree.",needs:"Needs play_tennis.csv in the same folder. Install: pip install pandas scikit-learn matplotlib",code:String.raw`${T_LOAD}
+import matplotlib.pyplot as plt
+from sklearn.tree import plot_tree, export_text
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)
+
+model = DecisionTreeClassifier(random_state=42)
+model.fit(X_train, y_train)
+
+plt.figure(figsize=(12, 8))
+plot_tree(
+    model,
+    feature_names=X.columns,
+    class_names=["No", "Yes"],
+    filled=True,
+    rounded=True,
+    fontsize=9
+)
+plt.title("Decision Tree for Play Tennis Dataset")
+plt.show()
+
+print(export_text(model, feature_names=list(X.columns)))
+`},
+{file:"prac04a_nn_implement.py",prac:"Practical 4A",title:"Neural Network - Implement",aim:"Implement the Feed Forward Backpropagation algorithm to train a neural network.",needs:"Uses built-in Iris dataset. Install: pip install scikit-learn",code:String.raw`from sklearn.datasets import load_iris
+from sklearn.neural_network import MLPClassifier
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+model = MLPClassifier(hidden_layer_sizes=(5),
+                      max_iter=500,
+                      random_state=1)
+
+model.fit(X, y)
+
+print("Training Completed Successfully")
+print("Iterations run :", model.n_iter_)
+print("Final loss     :", model.loss_)
+`},
+{file:"prac04b_nn_train.py",prac:"Practical 4B",title:"Neural Network - Train on dataset",aim:"Use a given dataset to train the neural network for a specific task.",needs:"Uses built-in Iris dataset. Install: pip install scikit-learn",code:String.raw`from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=1)
+
+model = MLPClassifier(hidden_layer_sizes=(5),
+                      max_iter=500,
+                      random_state=1)
+
+model.fit(X_train, y_train)
+
+print("Model Trained Successfully")
+print("Training samples:", len(X_train))
+print("Testing samples :", len(X_test))
+`},
+{file:"prac04c_nn_evaluate.py",prac:"Practical 4C",title:"Neural Network - Evaluate",aim:"Evaluate the performance of the trained network on test data.",needs:"Uses built-in Iris dataset. Install: pip install scikit-learn",code:String.raw`from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=1)
+
+model = MLPClassifier(hidden_layer_sizes=(5),
+                      max_iter=500,
+                      random_state=1)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy =", round(accuracy * 100, 2), "%")
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+`},
+{file:"prac05a_svm_binary.py",prac:"Practical 5A",title:"SVM - Binary classification",aim:"Implement the SVM algorithm for binary classification.",needs:"Needs SVM_Binary_Classification_Dataset.csv (columns Hours_Studied, Attendance, Result). Install: pip install pandas scikit-learn",code:String.raw`${S_LOAD}
+
+model = SVC(kernel="linear")
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print("Predicted:", y_pred)
+print("Actual:", y_test.values)
+print("Accuracy:", accuracy_score(y_test, y_pred) * 100, "%")
+`},
+{file:"prac05b_svm_tuning.py",prac:"Practical 5B",title:"SVM - Optimize parameters",aim:"Train an SVM model using a given dataset and optimize its parameters.",needs:"Needs SVM_Binary_Classification_Dataset.csv (columns Hours_Studied, Attendance, Result). Install: pip install pandas scikit-learn",code:String.raw`${S_LOAD}
+
+model = SVC()
+
+params = {
+    "C": [0.1, 1, 10],
+    "kernel": ["linear", "rbf"],
+    "gamma": ["scale", "auto"]
+}
+
+grid = GridSearchCV(model, params, cv=3)
+grid.fit(X_train, y_train)
+
+y_pred = grid.predict(X_test)
+
+print("Best Parameters:", grid.best_params_)
+print("Accuracy:", accuracy_score(y_test, y_pred) * 100, "%")
+`},
+{file:"prac05c_svm_evaluate.py",prac:"Practical 5C",title:"SVM - Evaluate and analyze",aim:"Evaluate the performance of the SVM model on test data and analyze the results.",needs:"Needs SVM_Binary_Classification_Dataset.csv (columns Hours_Studied, Attendance, Result). Install: pip install pandas scikit-learn",code:String.raw`${S_LOAD}
+
+model = SVC(kernel="linear")
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+print("Actual:", y_test.values)
+print("Predicted:", y_pred)
+print("\nAccuracy:", accuracy_score(y_test, y_pred) * 100, "%")
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+`},
+{file:"prac06_adaboost.py",prac:"Practical 6",title:"Adaboost Ensemble Learning",aim:"Create an ensemble of weak classifiers, train and evaluate it, and compare with a single weak classifier.",needs:"Uses built-in Iris dataset. Install: pip install scikit-learn",code:String.raw`from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+X, y = load_iris(return_X_y=True)
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42)
+
+weak_model = DecisionTreeClassifier(max_depth=1)
+model = AdaBoostClassifier(estimator=weak_model,
+                           n_estimators=50,
+                           random_state=42)
+
+model.fit(X_train, y_train)
+
+print("Weak classifier       : Decision Tree (max_depth=1)")
+print("Number of weak models :", len(model.estimators_))
+
+y_pred = model.predict(X_test)
+ada_acc = accuracy_score(y_test, y_pred)
+
+print("\nAdaBoost Accuracy:", ada_acc)
+print("Predicted values:", y_pred)
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+weak_model.fit(X_train, y_train)
+weak_acc = accuracy_score(y_test, weak_model.predict(X_test))
+
+print("Single Weak Classifier (stump) Accuracy:", weak_acc)
+print("AdaBoost Ensemble (50 stumps) Accuracy :", ada_acc)
+
+if ada_acc > weak_acc:
+    print("AdaBoost performs better than a single weak classifier.")
+else:
+    print("AdaBoost performs equal to or lower than the weak classifier.")
+`},
+{file:"prac07_naive_bayes.py",prac:"Practical 7",title:"Naive Bayes' Classifier",aim:"Implement Naive Bayes, train on the dataset, calculate class probabilities and evaluate accuracy (6 count-plot graphs).",needs:"Needs diseases_extended.csv in the same folder (Sore Throat, Fever, Swollen Glands, Congestion, Headache, Diagnosis). Install: pip install pandas scikit-learn matplotlib seaborn",code:String.raw`import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB, CategoricalNB, GaussianNB
+from sklearn.metrics import (classification_report, accuracy_score,
+                             confusion_matrix, precision_score,
+                             recall_score, f1_score)
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 200)
+
+df = pd.read_csv('diseases_extended.csv')
+
+print(df.head(11))
+print(df.tail())
+df.info()
+
+le = LabelEncoder()
+df['Sore Throat'] = le.fit_transform(df['Sore Throat'])
+df['Fever'] = le.fit_transform(df['Fever'])
+df['Swollen Glands'] = le.fit_transform(df['Swollen Glands'])
+df['Congestion'] = le.fit_transform(df['Congestion'])
+df['Headache'] = le.fit_transform(df['Headache'])
+df['Diagnosis'] = le.fit_transform(df['Diagnosis'])
+
+df.info()
+print(df.head(11))
+
+fig, ax = plt.subplots(figsize=(6, 6))
+sns.countplot(x=df['Sore Throat'], data=df, ax=ax)
+plt.title("Category wise count of 'Sore Throat'")
+plt.xlabel("category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 6))
+sns.countplot(x=df['Fever'], data=df, ax=ax)
+plt.title("Category wise count of 'Fever'")
+plt.xlabel("category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 6))
+sns.countplot(x=df['Swollen Glands'], data=df, ax=ax)
+plt.title("Category wise count of 'Swollen Glands'")
+plt.xlabel("category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 6))
+sns.countplot(x=df['Congestion'], data=df, ax=ax)
+plt.title("Category wise count of 'Congestion'")
+plt.xlabel("category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 6))
+sns.countplot(x=df['Headache'], data=df, ax=ax)
+plt.title("Category wise count of 'Headache'")
+plt.xlabel("category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 6))
+sns.countplot(x=df['Diagnosis'], data=df, ax=ax)
+plt.title("Category wise count of 'Diagnosis'")
+plt.xlabel("category")
+plt.ylabel("Count")
+plt.show()
+
+X = df.drop('Diagnosis', axis=1)
+y = df['Diagnosis']
+
+classifier = MultinomialNB()
+classifier.fit(X, y)
+print("MultinomialNB trained successfully")
+
+classifier = CategoricalNB()
+classifier.fit(X, y)
+print("CategoricalNB trained successfully")
+
+classifier = GaussianNB()
+classifier.fit(X, y)
+print("GaussianNB trained successfully")
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42)
+
+classifier = MultinomialNB()
+classifier.fit(X_train, y_train)
+y_pred = classifier.predict(X_test)
+
+print("\nClasses:", classifier.classes_)
+print("Predicted probabilities for test data:")
+print(classifier.predict_proba(X_test))
+
+print("\nconfusion matrix\n", confusion_matrix(y_test, y_pred))
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Precision:", precision_score(y_test, y_pred, average='macro', zero_division=0))
+print("Recall:", recall_score(y_test, y_pred, average='macro', zero_division=0))
+print("F1 score:", f1_score(y_test, y_pred, average='macro', zero_division=0))
+print("Classification report:\n", classification_report(y_test, y_pred, zero_division=0))
+`},
+{file:"prac08_knn.py",prac:"Practical 8",title:"K-Nearest Neighbors (K-NN)",aim:"Classify with K-NN, predict test data, tune k, evaluate with confusion matrix, ROC and GridSearchCV (2 graphs).",needs:"Needs diabetes.csv (Pima Indians Diabetes) in the same folder. Install: pip install numpy pandas matplotlib scikit-learn",code:String.raw`import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import (confusion_matrix, classification_report,
+                             roc_curve, roc_auc_score)
+
+plt.style.use('ggplot')
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 200)
+
+df = pd.read_csv('diabetes.csv')
+print(df.head())
+print("Shape:", df.shape)
+print(df.dtypes)
+
+X = df.drop('Outcome', axis=1).values
+y = df['Outcome'].values
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.4, random_state=42, stratify=y)
+
+neighbors = np.arange(1, 9)
+train_accuracy = np.empty(len(neighbors))
+test_accuracy = np.empty(len(neighbors))
+
+for i, k in enumerate(neighbors):
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train, y_train)
+    train_accuracy[i] = knn.score(X_train, y_train)
+    test_accuracy[i] = knn.score(X_test, y_test)
+
+plt.figure(figsize=(7, 5))
+plt.title('k-NN: Varying Number of Neighbors')
+plt.plot(neighbors, test_accuracy, label='Testing Accuracy')
+plt.plot(neighbors, train_accuracy, label='Training accuracy')
+plt.legend()
+plt.xlabel('Number of Neighbors')
+plt.ylabel('Accuracy')
+plt.show()
+
+knn = KNeighborsClassifier(n_neighbors=7)
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)
+
+print("First 15 Actual   :", y_test[:15])
+print("First 15 Predicted:", y_pred[:15])
+print("Test Accuracy (k=7):", knn.score(X_test, y_test))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred))
+
+y_pred_proba = knn.predict_proba(X_test)[:, 1]
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+
+plt.figure(figsize=(7, 5))
+plt.plot([0, 1], [0, 1], 'k--')
+plt.plot(fpr, tpr, label='Knn')
+plt.xlabel('fpr')
+plt.ylabel('tpr')
+plt.title('Knn(n_neighbors=7) ROC curve')
+plt.show()
+
+print("ROC AUC score:", roc_auc_score(y_test, y_pred_proba))
+
+param_grid = {'n_neighbors': np.arange(1, 50)}
+knn_cv = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5)
+knn_cv.fit(X, y)
+
+print("Best score:", knn_cv.best_score_)
+print("Best params:", knn_cv.best_params_)
+`},
+{file:"play_tennis.csv",prac:"Dataset",title:"Play Tennis dataset",aim:"20 rows: Outlook, Temperature, Humidity, Wind, PlayTennis (Yes/No).",needs:"Used by Practical 3A, 3B, 3C. Keep it in the same folder as the .py file.",data:true,code:"Outlook,Temperature,Humidity,Wind,PlayTennis\nSunny,Hot,High,Weak,No\nSunny,Hot,High,Strong,No\nOvercast,Hot,High,Weak,Yes\nRain,Mild,High,Weak,Yes\nRain,Cool,Normal,Weak,Yes\nRain,Cool,Normal,Strong,No\nOvercast,Cool,Normal,Strong,Yes\nSunny,Mild,High,Weak,No\nSunny,Cool,Normal,Weak,Yes\nRain,Mild,Normal,Weak,Yes\nSunny,Mild,Normal,Strong,Yes\nOvercast,Mild,High,Strong,Yes\nOvercast,Hot,Normal,Weak,Yes\nRain,Mild,High,Strong,No\nSunny,Cool,High,Strong,No\nOvercast,Cool,High,Weak,Yes\nRain,Hot,Normal,Weak,Yes\nSunny,Hot,Normal,Weak,Yes\nRain,Cool,High,Weak,No\nOvercast,Mild,Normal,Strong,Yes\n"},
+{file:"SVM_Binary_Classification_Dataset.csv",prac:"Dataset",title:"SVM binary classification dataset",aim:"20 rows: Hours_Studied, Attendance, Result (0/1).",needs:"Used by Practical 5A, 5B, 5C. Keep it in the same folder as the .py file.",data:true,code:"Hours_Studied,Attendance,Result\n1,50,0\n2,55,0\n3,60,0\n4,65,0\n5,70,0\n6,75,1\n7,80,1\n8,85,1\n9,90,1\n10,95,1\n2,52,0\n3,58,0\n4,63,0\n5,68,0\n6,73,1\n7,78,1\n8,83,1\n9,88,1\n1,48,0\n10,92,1\n"},
+{file:"diseases_extended.csv",prac:"Dataset",title:"Diseases dataset (Naive Bayes)",aim:"120 rows: Sore Throat, Fever, Swollen Glands, Congestion, Headache, Diagnosis.",needs:"Used by Practical 7. Keep it in the same folder as the .py file.",data:true,code:"Sore Throat,Fever,Swollen Glands,Congestion,Headache,Diagnosis\nNo,Yes,No,Yes,Yes,Allergy\nNo,No,Yes,Yes,Yes,Allergy\nNo,No,No,No,Yes,Allergy\nNo,Yes,No,No,No,Strep throat\nYes,Yes,No,Yes,No,Cold\nYes,Yes,Yes,Yes,Yes,Strep throat\nNo,No,No,No,Yes,Cold\nNo,No,Yes,No,No,Cold\nYes,No,No,Yes,Yes,Strep throat\nNo,Yes,Yes,Yes,No,Allergy\nYes,No,No,No,No,Strep throat\nNo,Yes,No,Yes,No,Allergy\nYes,Yes,No,Yes,Yes,Cold\nNo,Yes,Yes,No,No,Strep throat\nYes,No,No,Yes,No,Cold\nNo,No,No,Yes,Yes,Allergy\nYes,Yes,Yes,No,Yes,Strep throat\nNo,No,Yes,Yes,No,Cold\nYes,Yes,No,No,No,Strep throat\nNo,Yes,No,Yes,Yes,Allergy\nYes,No,Yes,Yes,No,Cold\nYes,Yes,Yes,Yes,No,Strep throat\nNo,No,No,No,Yes,Allergy\nYes,No,No,Yes,Yes,Cold\nNo,Yes,Yes,No,Yes,Strep throat\nYes,Yes,No,No,Yes,Allergy\nNo,No,No,No,No,Strep throat\nYes,Yes,No,No,Yes,Strep throat\nYes,No,Yes,Yes,Yes,Cold\nYes,Yes,No,Yes,No,Allergy\nNo,Yes,No,Yes,Yes,Allergy\nNo,No,Yes,Yes,Yes,Allergy\nNo,No,No,No,Yes,Allergy\nNo,Yes,No,No,No,Strep throat\nYes,Yes,No,Yes,No,Cold\nYes,Yes,Yes,Yes,Yes,Strep throat\nNo,No,No,No,Yes,Cold\nNo,No,Yes,No,No,Cold\nYes,No,No,Yes,Yes,Strep throat\nNo,Yes,Yes,Yes,No,Allergy\nYes,No,No,No,No,Strep throat\nNo,Yes,No,Yes,No,Allergy\nYes,Yes,No,Yes,Yes,Cold\nNo,Yes,Yes,No,No,Strep throat\nYes,No,No,Yes,No,Cold\nNo,No,No,Yes,Yes,Allergy\nYes,Yes,Yes,No,Yes,Strep throat\nNo,No,Yes,Yes,No,Cold\nYes,Yes,No,No,No,Strep throat\nNo,Yes,No,Yes,Yes,Allergy\nYes,No,Yes,Yes,No,Cold\nYes,Yes,Yes,Yes,No,Strep throat\nNo,No,No,No,Yes,Allergy\nYes,No,No,Yes,Yes,Cold\nNo,Yes,Yes,No,Yes,Strep throat\nYes,Yes,No,No,Yes,Allergy\nNo,No,No,No,No,Strep throat\nYes,Yes,No,No,Yes,Strep throat\nYes,No,Yes,Yes,Yes,Cold\nYes,Yes,No,Yes,No,Allergy\nNo,Yes,No,Yes,Yes,Allergy\nNo,No,Yes,Yes,Yes,Allergy\nNo,No,No,No,Yes,Allergy\nNo,Yes,No,No,No,Strep throat\nYes,Yes,No,Yes,No,Cold\nYes,Yes,Yes,Yes,Yes,Strep throat\nNo,No,No,No,Yes,Cold\nNo,No,Yes,No,No,Cold\nYes,No,No,Yes,Yes,Strep throat\nNo,Yes,Yes,Yes,No,Allergy\nYes,No,No,No,No,Strep throat\nNo,Yes,No,Yes,No,Allergy\nYes,Yes,No,Yes,Yes,Cold\nNo,Yes,Yes,No,No,Strep throat\nYes,No,No,Yes,No,Cold\nNo,No,No,Yes,Yes,Allergy\nYes,Yes,Yes,No,Yes,Strep throat\nNo,No,Yes,Yes,No,Cold\nYes,Yes,No,No,No,Strep throat\nNo,Yes,No,Yes,Yes,Allergy\nYes,No,Yes,Yes,No,Cold\nYes,Yes,Yes,Yes,No,Strep throat\nNo,No,No,No,Yes,Allergy\nYes,No,No,Yes,Yes,Cold\nNo,Yes,Yes,No,Yes,Strep throat\nYes,Yes,No,No,Yes,Allergy\nNo,No,No,No,No,Strep throat\nYes,Yes,No,No,Yes,Strep throat\nYes,No,Yes,Yes,Yes,Cold\nYes,Yes,No,Yes,No,Allergy\nNo,Yes,No,Yes,Yes,Allergy\nNo,No,Yes,Yes,Yes,Allergy\nNo,No,No,No,Yes,Allergy\nNo,Yes,No,No,No,Strep throat\nYes,Yes,No,Yes,No,Cold\nYes,Yes,Yes,Yes,Yes,Strep throat\nNo,No,No,No,Yes,Cold\nNo,No,Yes,No,No,Cold\nYes,No,No,Yes,Yes,Strep throat\nNo,Yes,Yes,Yes,No,Allergy\nYes,No,No,No,No,Strep throat\nNo,Yes,No,Yes,No,Allergy\nYes,Yes,No,Yes,Yes,Cold\nNo,Yes,Yes,No,No,Strep throat\nYes,No,No,Yes,No,Cold\nNo,No,No,Yes,Yes,Allergy\nYes,Yes,Yes,No,Yes,Strep throat\nNo,No,Yes,Yes,No,Cold\nYes,Yes,No,No,No,Strep throat\nNo,Yes,No,Yes,Yes,Allergy\nYes,No,Yes,Yes,No,Cold\nYes,Yes,Yes,Yes,No,Strep throat\nNo,No,No,No,Yes,Allergy\nYes,No,No,Yes,Yes,Cold\nNo,Yes,Yes,No,Yes,Strep throat\nYes,Yes,No,No,Yes,Allergy\nNo,No,No,No,No,Strep throat\nYes,Yes,No,No,Yes,Strep throat\nYes,No,Yes,Yes,Yes,Cold\nYes,Yes,No,Yes,No,Allergy\n"},
+{file:"diabetes.csv",prac:"Dataset",title:"Pima Indians Diabetes dataset",aim:"768 rows, 8 features plus Outcome (0/1).",needs:"Used by Practical 8. Keep it in the same folder as the .py file.",data:true,code:"Pregnancies,Glucose,BloodPressure,SkinThickness,Insulin,BMI,DiabetesPedigreeFunction,Age,Outcome\n6,148,72,35,0,33.6,0.627,50,1\n1,85,66,29,0,26.6,0.351,31,0\n8,183,64,0,0,23.3,0.672,32,1\n1,89,66,23,94,28.1,0.167,21,0\n0,137,40,35,168,43.1,2.288,33,1\n5,116,74,0,0,25.6,0.201,30,0\n3,78,50,32,88,31,0.248,26,1\n10,115,0,0,0,35.3,0.134,29,0\n2,197,70,45,543,30.5,0.158,53,1\n8,125,96,0,0,0,0.232,54,1\n4,110,92,0,0,37.6,0.191,30,0\n10,168,74,0,0,38,0.537,34,1\n10,139,80,0,0,27.1,1.441,57,0\n1,189,60,23,846,30.1,0.398,59,1\n5,166,72,19,175,25.8,0.587,51,1\n7,100,0,0,0,30,0.484,32,1\n0,118,84,47,230,45.8,0.551,31,1\n7,107,74,0,0,29.6,0.254,31,1\n1,103,30,38,83,43.3,0.183,33,0\n1,115,70,30,96,34.6,0.529,32,1\n3,126,88,41,235,39.3,0.704,27,0\n8,99,84,0,0,35.4,0.388,50,0\n7,196,90,0,0,39.8,0.451,41,1\n9,119,80,35,0,29,0.263,29,1\n11,143,94,33,146,36.6,0.254,51,1\n10,125,70,26,115,31.1,0.205,41,1\n7,147,76,0,0,39.4,0.257,43,1\n1,97,66,15,140,23.2,0.487,22,0\n13,145,82,19,110,22.2,0.245,57,0\n5,117,92,0,0,34.1,0.337,38,0\n5,109,75,26,0,36,0.546,60,0\n3,158,76,36,245,31.6,0.851,28,1\n3,88,58,11,54,24.8,0.267,22,0\n6,92,92,0,0,19.9,0.188,28,0\n10,122,78,31,0,27.6,0.512,45,0\n4,103,60,33,192,24,0.966,33,0\n11,138,76,0,0,33.2,0.42,35,0\n9,102,76,37,0,32.9,0.665,46,1\n2,90,68,42,0,38.2,0.503,27,1\n4,111,72,47,207,37.1,1.39,56,1\n3,180,64,25,70,34,0.271,26,0\n7,133,84,0,0,40.2,0.696,37,0\n7,106,92,18,0,22.7,0.235,48,0\n9,171,110,24,240,45.4,0.721,54,1\n7,159,64,0,0,27.4,0.294,40,0\n0,180,66,39,0,42,1.893,25,1\n1,146,56,0,0,29.7,0.564,29,0\n2,71,70,27,0,28,0.586,22,0\n7,103,66,32,0,39.1,0.344,31,1\n7,105,0,0,0,0,0.305,24,0\n1,103,80,11,82,19.4,0.491,22,0\n1,101,50,15,36,24.2,0.526,26,0\n5,88,66,21,23,24.4,0.342,30,0\n8,176,90,34,300,33.7,0.467,58,1\n7,150,66,42,342,34.7,0.718,42,0\n1,73,50,10,0,23,0.248,21,0\n7,187,68,39,304,37.7,0.254,41,1\n0,100,88,60,110,46.8,0.962,31,0\n0,146,82,0,0,40.5,1.781,44,0\n0,105,64,41,142,41.5,0.173,22,0\n2,84,0,0,0,0,0.304,21,0\n8,133,72,0,0,32.9,0.27,39,1\n5,44,62,0,0,25,0.587,36,0\n2,141,58,34,128,25.4,0.699,24,0\n7,114,66,0,0,32.8,0.258,42,1\n5,99,74,27,0,29,0.203,32,0\n0,109,88,30,0,32.5,0.855,38,1\n2,109,92,0,0,42.7,0.845,54,0\n1,95,66,13,38,19.6,0.334,25,0\n4,146,85,27,100,28.9,0.189,27,0\n2,100,66,20,90,32.9,0.867,28,1\n5,139,64,35,140,28.6,0.411,26,0\n13,126,90,0,0,43.4,0.583,42,1\n4,129,86,20,270,35.1,0.231,23,0\n1,79,75,30,0,32,0.396,22,0\n1,0,48,20,0,24.7,0.14,22,0\n7,62,78,0,0,32.6,0.391,41,0\n5,95,72,33,0,37.7,0.37,27,0\n0,131,0,0,0,43.2,0.27,26,1\n2,112,66,22,0,25,0.307,24,0\n3,113,44,13,0,22.4,0.14,22,0\n2,74,0,0,0,0,0.102,22,0\n7,83,78,26,71,29.3,0.767,36,0\n0,101,65,28,0,24.6,0.237,22,0\n5,137,108,0,0,48.8,0.227,37,1\n2,110,74,29,125,32.4,0.698,27,0\n13,106,72,54,0,36.6,0.178,45,0\n2,100,68,25,71,38.5,0.324,26,0\n15,136,70,32,110,37.1,0.153,43,1\n1,107,68,19,0,26.5,0.165,24,0\n1,80,55,0,0,19.1,0.258,21,0\n4,123,80,15,176,32,0.443,34,0\n7,81,78,40,48,46.7,0.261,42,0\n4,134,72,0,0,23.8,0.277,60,1\n2,142,82,18,64,24.7,0.761,21,0\n6,144,72,27,228,33.9,0.255,40,0\n2,92,62,28,0,31.6,0.13,24,0\n1,71,48,18,76,20.4,0.323,22,0\n6,93,50,30,64,28.7,0.356,23,0\n1,122,90,51,220,49.7,0.325,31,1\n1,163,72,0,0,39,1.222,33,1\n1,151,60,0,0,26.1,0.179,22,0\n0,125,96,0,0,22.5,0.262,21,0\n1,81,72,18,40,26.6,0.283,24,0\n2,85,65,0,0,39.6,0.93,27,0\n1,126,56,29,152,28.7,0.801,21,0\n1,96,122,0,0,22.4,0.207,27,0\n4,144,58,28,140,29.5,0.287,37,0\n3,83,58,31,18,34.3,0.336,25,0\n0,95,85,25,36,37.4,0.247,24,1\n3,171,72,33,135,33.3,0.199,24,1\n8,155,62,26,495,34,0.543,46,1\n1,89,76,34,37,31.2,0.192,23,0\n4,76,62,0,0,34,0.391,25,0\n7,160,54,32,175,30.5,0.588,39,1\n4,146,92,0,0,31.2,0.539,61,1\n5,124,74,0,0,34,0.22,38,1\n5,78,48,0,0,33.7,0.654,25,0\n4,97,60,23,0,28.2,0.443,22,0\n4,99,76,15,51,23.2,0.223,21,0\n0,162,76,56,100,53.2,0.759,25,1\n6,111,64,39,0,34.2,0.26,24,0\n2,107,74,30,100,33.6,0.404,23,0\n5,132,80,0,0,26.8,0.186,69,0\n0,113,76,0,0,33.3,0.278,23,1\n1,88,30,42,99,55,0.496,26,1\n3,120,70,30,135,42.9,0.452,30,0\n1,118,58,36,94,33.3,0.261,23,0\n1,117,88,24,145,34.5,0.403,40,1\n0,105,84,0,0,27.9,0.741,62,1\n4,173,70,14,168,29.7,0.361,33,1\n9,122,56,0,0,33.3,1.114,33,1\n3,170,64,37,225,34.5,0.356,30,1\n8,84,74,31,0,38.3,0.457,39,0\n2,96,68,13,49,21.1,0.647,26,0\n2,125,60,20,140,33.8,0.088,31,0\n0,100,70,26,50,30.8,0.597,21,0\n0,93,60,25,92,28.7,0.532,22,0\n0,129,80,0,0,31.2,0.703,29,0\n5,105,72,29,325,36.9,0.159,28,0\n3,128,78,0,0,21.1,0.268,55,0\n5,106,82,30,0,39.5,0.286,38,0\n2,108,52,26,63,32.5,0.318,22,0\n10,108,66,0,0,32.4,0.272,42,1\n4,154,62,31,284,32.8,0.237,23,0\n0,102,75,23,0,0,0.572,21,0\n9,57,80,37,0,32.8,0.096,41,0\n2,106,64,35,119,30.5,1.4,34,0\n5,147,78,0,0,33.7,0.218,65,0\n2,90,70,17,0,27.3,0.085,22,0\n1,136,74,50,204,37.4,0.399,24,0\n4,114,65,0,0,21.9,0.432,37,0\n9,156,86,28,155,34.3,1.189,42,1\n1,153,82,42,485,40.6,0.687,23,0\n8,188,78,0,0,47.9,0.137,43,1\n7,152,88,44,0,50,0.337,36,1\n2,99,52,15,94,24.6,0.637,21,0\n1,109,56,21,135,25.2,0.833,23,0\n2,88,74,19,53,29,0.229,22,0\n17,163,72,41,114,40.9,0.817,47,1\n4,151,90,38,0,29.7,0.294,36,0\n7,102,74,40,105,37.2,0.204,45,0\n0,114,80,34,285,44.2,0.167,27,0\n2,100,64,23,0,29.7,0.368,21,0\n0,131,88,0,0,31.6,0.743,32,1\n6,104,74,18,156,29.9,0.722,41,1\n3,148,66,25,0,32.5,0.256,22,0\n4,120,68,0,0,29.6,0.709,34,0\n4,110,66,0,0,31.9,0.471,29,0\n3,111,90,12,78,28.4,0.495,29,0\n6,102,82,0,0,30.8,0.18,36,1\n6,134,70,23,130,35.4,0.542,29,1\n2,87,0,23,0,28.9,0.773,25,0\n1,79,60,42,48,43.5,0.678,23,0\n2,75,64,24,55,29.7,0.37,33,0\n8,179,72,42,130,32.7,0.719,36,1\n6,85,78,0,0,31.2,0.382,42,0\n0,129,110,46,130,67.1,0.319,26,1\n5,143,78,0,0,45,0.19,47,0\n5,130,82,0,0,39.1,0.956,37,1\n6,87,80,0,0,23.2,0.084,32,0\n0,119,64,18,92,34.9,0.725,23,0\n1,0,74,20,23,27.7,0.299,21,0\n5,73,60,0,0,26.8,0.268,27,0\n4,141,74,0,0,27.6,0.244,40,0\n7,194,68,28,0,35.9,0.745,41,1\n8,181,68,36,495,30.1,0.615,60,1\n1,128,98,41,58,32,1.321,33,1\n8,109,76,39,114,27.9,0.64,31,1\n5,139,80,35,160,31.6,0.361,25,1\n3,111,62,0,0,22.6,0.142,21,0\n9,123,70,44,94,33.1,0.374,40,0\n7,159,66,0,0,30.4,0.383,36,1\n11,135,0,0,0,52.3,0.578,40,1\n8,85,55,20,0,24.4,0.136,42,0\n5,158,84,41,210,39.4,0.395,29,1\n1,105,58,0,0,24.3,0.187,21,0\n3,107,62,13,48,22.9,0.678,23,1\n4,109,64,44,99,34.8,0.905,26,1\n4,148,60,27,318,30.9,0.15,29,1\n0,113,80,16,0,31,0.874,21,0\n1,138,82,0,0,40.1,0.236,28,0\n0,108,68,20,0,27.3,0.787,32,0\n2,99,70,16,44,20.4,0.235,27,0\n6,103,72,32,190,37.7,0.324,55,0\n5,111,72,28,0,23.9,0.407,27,0\n8,196,76,29,280,37.5,0.605,57,1\n5,162,104,0,0,37.7,0.151,52,1\n1,96,64,27,87,33.2,0.289,21,0\n7,184,84,33,0,35.5,0.355,41,1\n2,81,60,22,0,27.7,0.29,25,0\n0,147,85,54,0,42.8,0.375,24,0\n7,179,95,31,0,34.2,0.164,60,0\n0,140,65,26,130,42.6,0.431,24,1\n9,112,82,32,175,34.2,0.26,36,1\n12,151,70,40,271,41.8,0.742,38,1\n5,109,62,41,129,35.8,0.514,25,1\n6,125,68,30,120,30,0.464,32,0\n5,85,74,22,0,29,1.224,32,1\n5,112,66,0,0,37.8,0.261,41,1\n0,177,60,29,478,34.6,1.072,21,1\n2,158,90,0,0,31.6,0.805,66,1\n7,119,0,0,0,25.2,0.209,37,0\n7,142,60,33,190,28.8,0.687,61,0\n1,100,66,15,56,23.6,0.666,26,0\n1,87,78,27,32,34.6,0.101,22,0\n0,101,76,0,0,35.7,0.198,26,0\n3,162,52,38,0,37.2,0.652,24,1\n4,197,70,39,744,36.7,2.329,31,0\n0,117,80,31,53,45.2,0.089,24,0\n4,142,86,0,0,44,0.645,22,1\n6,134,80,37,370,46.2,0.238,46,1\n1,79,80,25,37,25.4,0.583,22,0\n4,122,68,0,0,35,0.394,29,0\n3,74,68,28,45,29.7,0.293,23,0\n4,171,72,0,0,43.6,0.479,26,1\n7,181,84,21,192,35.9,0.586,51,1\n0,179,90,27,0,44.1,0.686,23,1\n9,164,84,21,0,30.8,0.831,32,1\n0,104,76,0,0,18.4,0.582,27,0\n1,91,64,24,0,29.2,0.192,21,0\n4,91,70,32,88,33.1,0.446,22,0\n3,139,54,0,0,25.6,0.402,22,1\n6,119,50,22,176,27.1,1.318,33,1\n2,146,76,35,194,38.2,0.329,29,0\n9,184,85,15,0,30,1.213,49,1\n10,122,68,0,0,31.2,0.258,41,0\n0,165,90,33,680,52.3,0.427,23,0\n9,124,70,33,402,35.4,0.282,34,0\n1,111,86,19,0,30.1,0.143,23,0\n9,106,52,0,0,31.2,0.38,42,0\n2,129,84,0,0,28,0.284,27,0\n2,90,80,14,55,24.4,0.249,24,0\n0,86,68,32,0,35.8,0.238,25,0\n12,92,62,7,258,27.6,0.926,44,1\n1,113,64,35,0,33.6,0.543,21,1\n3,111,56,39,0,30.1,0.557,30,0\n2,114,68,22,0,28.7,0.092,25,0\n1,193,50,16,375,25.9,0.655,24,0\n11,155,76,28,150,33.3,1.353,51,1\n3,191,68,15,130,30.9,0.299,34,0\n3,141,0,0,0,30,0.761,27,1\n4,95,70,32,0,32.1,0.612,24,0\n3,142,80,15,0,32.4,0.2,63,0\n4,123,62,0,0,32,0.226,35,1\n5,96,74,18,67,33.6,0.997,43,0\n0,138,0,0,0,36.3,0.933,25,1\n2,128,64,42,0,40,1.101,24,0\n0,102,52,0,0,25.1,0.078,21,0\n2,146,0,0,0,27.5,0.24,28,1\n10,101,86,37,0,45.6,1.136,38,1\n2,108,62,32,56,25.2,0.128,21,0\n3,122,78,0,0,23,0.254,40,0\n1,71,78,50,45,33.2,0.422,21,0\n13,106,70,0,0,34.2,0.251,52,0\n2,100,70,52,57,40.5,0.677,25,0\n7,106,60,24,0,26.5,0.296,29,1\n0,104,64,23,116,27.8,0.454,23,0\n5,114,74,0,0,24.9,0.744,57,0\n2,108,62,10,278,25.3,0.881,22,0\n0,146,70,0,0,37.9,0.334,28,1\n10,129,76,28,122,35.9,0.28,39,0\n7,133,88,15,155,32.4,0.262,37,0\n7,161,86,0,0,30.4,0.165,47,1\n2,108,80,0,0,27,0.259,52,1\n7,136,74,26,135,26,0.647,51,0\n5,155,84,44,545,38.7,0.619,34,0\n1,119,86,39,220,45.6,0.808,29,1\n4,96,56,17,49,20.8,0.34,26,0\n5,108,72,43,75,36.1,0.263,33,0\n0,78,88,29,40,36.9,0.434,21,0\n0,107,62,30,74,36.6,0.757,25,1\n2,128,78,37,182,43.3,1.224,31,1\n1,128,48,45,194,40.5,0.613,24,1\n0,161,50,0,0,21.9,0.254,65,0\n6,151,62,31,120,35.5,0.692,28,0\n2,146,70,38,360,28,0.337,29,1\n0,126,84,29,215,30.7,0.52,24,0\n14,100,78,25,184,36.6,0.412,46,1\n8,112,72,0,0,23.6,0.84,58,0\n0,167,0,0,0,32.3,0.839,30,1\n2,144,58,33,135,31.6,0.422,25,1\n5,77,82,41,42,35.8,0.156,35,0\n5,115,98,0,0,52.9,0.209,28,1\n3,150,76,0,0,21,0.207,37,0\n2,120,76,37,105,39.7,0.215,29,0\n10,161,68,23,132,25.5,0.326,47,1\n0,137,68,14,148,24.8,0.143,21,0\n0,128,68,19,180,30.5,1.391,25,1\n2,124,68,28,205,32.9,0.875,30,1\n6,80,66,30,0,26.2,0.313,41,0\n0,106,70,37,148,39.4,0.605,22,0\n2,155,74,17,96,26.6,0.433,27,1\n3,113,50,10,85,29.5,0.626,25,0\n7,109,80,31,0,35.9,1.127,43,1\n2,112,68,22,94,34.1,0.315,26,0\n3,99,80,11,64,19.3,0.284,30,0\n3,182,74,0,0,30.5,0.345,29,1\n3,115,66,39,140,38.1,0.15,28,0\n6,194,78,0,0,23.5,0.129,59,1\n4,129,60,12,231,27.5,0.527,31,0\n3,112,74,30,0,31.6,0.197,25,1\n0,124,70,20,0,27.4,0.254,36,1\n13,152,90,33,29,26.8,0.731,43,1\n2,112,75,32,0,35.7,0.148,21,0\n1,157,72,21,168,25.6,0.123,24,0\n1,122,64,32,156,35.1,0.692,30,1\n10,179,70,0,0,35.1,0.2,37,0\n2,102,86,36,120,45.5,0.127,23,1\n6,105,70,32,68,30.8,0.122,37,0\n8,118,72,19,0,23.1,1.476,46,0\n2,87,58,16,52,32.7,0.166,25,0\n1,180,0,0,0,43.3,0.282,41,1\n12,106,80,0,0,23.6,0.137,44,0\n1,95,60,18,58,23.9,0.26,22,0\n0,165,76,43,255,47.9,0.259,26,0\n0,117,0,0,0,33.8,0.932,44,0\n5,115,76,0,0,31.2,0.343,44,1\n9,152,78,34,171,34.2,0.893,33,1\n7,178,84,0,0,39.9,0.331,41,1\n1,130,70,13,105,25.9,0.472,22,0\n1,95,74,21,73,25.9,0.673,36,0\n1,0,68,35,0,32,0.389,22,0\n5,122,86,0,0,34.7,0.29,33,0\n8,95,72,0,0,36.8,0.485,57,0\n8,126,88,36,108,38.5,0.349,49,0\n1,139,46,19,83,28.7,0.654,22,0\n3,116,0,0,0,23.5,0.187,23,0\n3,99,62,19,74,21.8,0.279,26,0\n5,0,80,32,0,41,0.346,37,1\n4,92,80,0,0,42.2,0.237,29,0\n4,137,84,0,0,31.2,0.252,30,0\n3,61,82,28,0,34.4,0.243,46,0\n1,90,62,12,43,27.2,0.58,24,0\n3,90,78,0,0,42.7,0.559,21,0\n9,165,88,0,0,30.4,0.302,49,1\n1,125,50,40,167,33.3,0.962,28,1\n13,129,0,30,0,39.9,0.569,44,1\n12,88,74,40,54,35.3,0.378,48,0\n1,196,76,36,249,36.5,0.875,29,1\n5,189,64,33,325,31.2,0.583,29,1\n5,158,70,0,0,29.8,0.207,63,0\n5,103,108,37,0,39.2,0.305,65,0\n4,146,78,0,0,38.5,0.52,67,1\n4,147,74,25,293,34.9,0.385,30,0\n5,99,54,28,83,34,0.499,30,0\n6,124,72,0,0,27.6,0.368,29,1\n0,101,64,17,0,21,0.252,21,0\n3,81,86,16,66,27.5,0.306,22,0\n1,133,102,28,140,32.8,0.234,45,1\n3,173,82,48,465,38.4,2.137,25,1\n0,118,64,23,89,0,1.731,21,0\n0,84,64,22,66,35.8,0.545,21,0\n2,105,58,40,94,34.9,0.225,25,0\n2,122,52,43,158,36.2,0.816,28,0\n12,140,82,43,325,39.2,0.528,58,1\n0,98,82,15,84,25.2,0.299,22,0\n1,87,60,37,75,37.2,0.509,22,0\n4,156,75,0,0,48.3,0.238,32,1\n0,93,100,39,72,43.4,1.021,35,0\n1,107,72,30,82,30.8,0.821,24,0\n0,105,68,22,0,20,0.236,22,0\n1,109,60,8,182,25.4,0.947,21,0\n1,90,62,18,59,25.1,1.268,25,0\n1,125,70,24,110,24.3,0.221,25,0\n1,119,54,13,50,22.3,0.205,24,0\n5,116,74,29,0,32.3,0.66,35,1\n8,105,100,36,0,43.3,0.239,45,1\n5,144,82,26,285,32,0.452,58,1\n3,100,68,23,81,31.6,0.949,28,0\n1,100,66,29,196,32,0.444,42,0\n5,166,76,0,0,45.7,0.34,27,1\n1,131,64,14,415,23.7,0.389,21,0\n4,116,72,12,87,22.1,0.463,37,0\n4,158,78,0,0,32.9,0.803,31,1\n2,127,58,24,275,27.7,1.6,25,0\n3,96,56,34,115,24.7,0.944,39,0\n0,131,66,40,0,34.3,0.196,22,1\n3,82,70,0,0,21.1,0.389,25,0\n3,193,70,31,0,34.9,0.241,25,1\n4,95,64,0,0,32,0.161,31,1\n6,137,61,0,0,24.2,0.151,55,0\n5,136,84,41,88,35,0.286,35,1\n9,72,78,25,0,31.6,0.28,38,0\n5,168,64,0,0,32.9,0.135,41,1\n2,123,48,32,165,42.1,0.52,26,0\n4,115,72,0,0,28.9,0.376,46,1\n0,101,62,0,0,21.9,0.336,25,0\n8,197,74,0,0,25.9,1.191,39,1\n1,172,68,49,579,42.4,0.702,28,1\n6,102,90,39,0,35.7,0.674,28,0\n1,112,72,30,176,34.4,0.528,25,0\n1,143,84,23,310,42.4,1.076,22,0\n1,143,74,22,61,26.2,0.256,21,0\n0,138,60,35,167,34.6,0.534,21,1\n3,173,84,33,474,35.7,0.258,22,1\n1,97,68,21,0,27.2,1.095,22,0\n4,144,82,32,0,38.5,0.554,37,1\n1,83,68,0,0,18.2,0.624,27,0\n3,129,64,29,115,26.4,0.219,28,1\n1,119,88,41,170,45.3,0.507,26,0\n2,94,68,18,76,26,0.561,21,0\n0,102,64,46,78,40.6,0.496,21,0\n2,115,64,22,0,30.8,0.421,21,0\n8,151,78,32,210,42.9,0.516,36,1\n4,184,78,39,277,37,0.264,31,1\n0,94,0,0,0,0,0.256,25,0\n1,181,64,30,180,34.1,0.328,38,1\n0,135,94,46,145,40.6,0.284,26,0\n1,95,82,25,180,35,0.233,43,1\n2,99,0,0,0,22.2,0.108,23,0\n3,89,74,16,85,30.4,0.551,38,0\n1,80,74,11,60,30,0.527,22,0\n2,139,75,0,0,25.6,0.167,29,0\n1,90,68,8,0,24.5,1.138,36,0\n0,141,0,0,0,42.4,0.205,29,1\n12,140,85,33,0,37.4,0.244,41,0\n5,147,75,0,0,29.9,0.434,28,0\n1,97,70,15,0,18.2,0.147,21,0\n6,107,88,0,0,36.8,0.727,31,0\n0,189,104,25,0,34.3,0.435,41,1\n2,83,66,23,50,32.2,0.497,22,0\n4,117,64,27,120,33.2,0.23,24,0\n8,108,70,0,0,30.5,0.955,33,1\n4,117,62,12,0,29.7,0.38,30,1\n0,180,78,63,14,59.4,2.42,25,1\n1,100,72,12,70,25.3,0.658,28,0\n0,95,80,45,92,36.5,0.33,26,0\n0,104,64,37,64,33.6,0.51,22,1\n0,120,74,18,63,30.5,0.285,26,0\n1,82,64,13,95,21.2,0.415,23,0\n2,134,70,0,0,28.9,0.542,23,1\n0,91,68,32,210,39.9,0.381,25,0\n2,119,0,0,0,19.6,0.832,72,0\n2,100,54,28,105,37.8,0.498,24,0\n14,175,62,30,0,33.6,0.212,38,1\n1,135,54,0,0,26.7,0.687,62,0\n5,86,68,28,71,30.2,0.364,24,0\n10,148,84,48,237,37.6,1.001,51,1\n9,134,74,33,60,25.9,0.46,81,0\n9,120,72,22,56,20.8,0.733,48,0\n1,71,62,0,0,21.8,0.416,26,0\n8,74,70,40,49,35.3,0.705,39,0\n5,88,78,30,0,27.6,0.258,37,0\n10,115,98,0,0,24,1.022,34,0\n0,124,56,13,105,21.8,0.452,21,0\n0,74,52,10,36,27.8,0.269,22,0\n0,97,64,36,100,36.8,0.6,25,0\n8,120,0,0,0,30,0.183,38,1\n6,154,78,41,140,46.1,0.571,27,0\n1,144,82,40,0,41.3,0.607,28,0\n0,137,70,38,0,33.2,0.17,22,0\n0,119,66,27,0,38.8,0.259,22,0\n7,136,90,0,0,29.9,0.21,50,0\n4,114,64,0,0,28.9,0.126,24,0\n0,137,84,27,0,27.3,0.231,59,0\n2,105,80,45,191,33.7,0.711,29,1\n7,114,76,17,110,23.8,0.466,31,0\n8,126,74,38,75,25.9,0.162,39,0\n4,132,86,31,0,28,0.419,63,0\n3,158,70,30,328,35.5,0.344,35,1\n0,123,88,37,0,35.2,0.197,29,0\n4,85,58,22,49,27.8,0.306,28,0\n0,84,82,31,125,38.2,0.233,23,0\n0,145,0,0,0,44.2,0.63,31,1\n0,135,68,42,250,42.3,0.365,24,1\n1,139,62,41,480,40.7,0.536,21,0\n0,173,78,32,265,46.5,1.159,58,0\n4,99,72,17,0,25.6,0.294,28,0\n8,194,80,0,0,26.1,0.551,67,0\n2,83,65,28,66,36.8,0.629,24,0\n2,89,90,30,0,33.5,0.292,42,0\n4,99,68,38,0,32.8,0.145,33,0\n4,125,70,18,122,28.9,1.144,45,1\n3,80,0,0,0,0,0.174,22,0\n6,166,74,0,0,26.6,0.304,66,0\n5,110,68,0,0,26,0.292,30,0\n2,81,72,15,76,30.1,0.547,25,0\n7,195,70,33,145,25.1,0.163,55,1\n6,154,74,32,193,29.3,0.839,39,0\n2,117,90,19,71,25.2,0.313,21,0\n3,84,72,32,0,37.2,0.267,28,0\n6,0,68,41,0,39,0.727,41,1\n7,94,64,25,79,33.3,0.738,41,0\n3,96,78,39,0,37.3,0.238,40,0\n10,75,82,0,0,33.3,0.263,38,0\n0,180,90,26,90,36.5,0.314,35,1\n1,130,60,23,170,28.6,0.692,21,0\n2,84,50,23,76,30.4,0.968,21,0\n8,120,78,0,0,25,0.409,64,0\n12,84,72,31,0,29.7,0.297,46,1\n0,139,62,17,210,22.1,0.207,21,0\n9,91,68,0,0,24.2,0.2,58,0\n2,91,62,0,0,27.3,0.525,22,0\n3,99,54,19,86,25.6,0.154,24,0\n3,163,70,18,105,31.6,0.268,28,1\n9,145,88,34,165,30.3,0.771,53,1\n7,125,86,0,0,37.6,0.304,51,0\n13,76,60,0,0,32.8,0.18,41,0\n6,129,90,7,326,19.6,0.582,60,0\n2,68,70,32,66,25,0.187,25,0\n3,124,80,33,130,33.2,0.305,26,0\n6,114,0,0,0,0,0.189,26,0\n9,130,70,0,0,34.2,0.652,45,1\n3,125,58,0,0,31.6,0.151,24,0\n3,87,60,18,0,21.8,0.444,21,0\n1,97,64,19,82,18.2,0.299,21,0\n3,116,74,15,105,26.3,0.107,24,0\n0,117,66,31,188,30.8,0.493,22,0\n0,111,65,0,0,24.6,0.66,31,0\n2,122,60,18,106,29.8,0.717,22,0\n0,107,76,0,0,45.3,0.686,24,0\n1,86,66,52,65,41.3,0.917,29,0\n6,91,0,0,0,29.8,0.501,31,0\n1,77,56,30,56,33.3,1.251,24,0\n4,132,0,0,0,32.9,0.302,23,1\n0,105,90,0,0,29.6,0.197,46,0\n0,57,60,0,0,21.7,0.735,67,0\n0,127,80,37,210,36.3,0.804,23,0\n3,129,92,49,155,36.4,0.968,32,1\n8,100,74,40,215,39.4,0.661,43,1\n3,128,72,25,190,32.4,0.549,27,1\n10,90,85,32,0,34.9,0.825,56,1\n4,84,90,23,56,39.5,0.159,25,0\n1,88,78,29,76,32,0.365,29,0\n8,186,90,35,225,34.5,0.423,37,1\n5,187,76,27,207,43.6,1.034,53,1\n4,131,68,21,166,33.1,0.16,28,0\n1,164,82,43,67,32.8,0.341,50,0\n4,189,110,31,0,28.5,0.68,37,0\n1,116,70,28,0,27.4,0.204,21,0\n3,84,68,30,106,31.9,0.591,25,0\n6,114,88,0,0,27.8,0.247,66,0\n1,88,62,24,44,29.9,0.422,23,0\n1,84,64,23,115,36.9,0.471,28,0\n7,124,70,33,215,25.5,0.161,37,0\n1,97,70,40,0,38.1,0.218,30,0\n8,110,76,0,0,27.8,0.237,58,0\n11,103,68,40,0,46.2,0.126,42,0\n11,85,74,0,0,30.1,0.3,35,0\n6,125,76,0,0,33.8,0.121,54,1\n0,198,66,32,274,41.3,0.502,28,1\n1,87,68,34,77,37.6,0.401,24,0\n6,99,60,19,54,26.9,0.497,32,0\n0,91,80,0,0,32.4,0.601,27,0\n2,95,54,14,88,26.1,0.748,22,0\n1,99,72,30,18,38.6,0.412,21,0\n6,92,62,32,126,32,0.085,46,0\n4,154,72,29,126,31.3,0.338,37,0\n0,121,66,30,165,34.3,0.203,33,1\n3,78,70,0,0,32.5,0.27,39,0\n2,130,96,0,0,22.6,0.268,21,0\n3,111,58,31,44,29.5,0.43,22,0\n2,98,60,17,120,34.7,0.198,22,0\n1,143,86,30,330,30.1,0.892,23,0\n1,119,44,47,63,35.5,0.28,25,0\n6,108,44,20,130,24,0.813,35,0\n2,118,80,0,0,42.9,0.693,21,1\n10,133,68,0,0,27,0.245,36,0\n2,197,70,99,0,34.7,0.575,62,1\n0,151,90,46,0,42.1,0.371,21,1\n6,109,60,27,0,25,0.206,27,0\n12,121,78,17,0,26.5,0.259,62,0\n8,100,76,0,0,38.7,0.19,42,0\n8,124,76,24,600,28.7,0.687,52,1\n1,93,56,11,0,22.5,0.417,22,0\n8,143,66,0,0,34.9,0.129,41,1\n6,103,66,0,0,24.3,0.249,29,0\n3,176,86,27,156,33.3,1.154,52,1\n0,73,0,0,0,21.1,0.342,25,0\n11,111,84,40,0,46.8,0.925,45,1\n2,112,78,50,140,39.4,0.175,24,0\n3,132,80,0,0,34.4,0.402,44,1\n2,82,52,22,115,28.5,1.699,25,0\n6,123,72,45,230,33.6,0.733,34,0\n0,188,82,14,185,32,0.682,22,1\n0,67,76,0,0,45.3,0.194,46,0\n1,89,24,19,25,27.8,0.559,21,0\n1,173,74,0,0,36.8,0.088,38,1\n1,109,38,18,120,23.1,0.407,26,0\n1,108,88,19,0,27.1,0.4,24,0\n6,96,0,0,0,23.7,0.19,28,0\n1,124,74,36,0,27.8,0.1,30,0\n7,150,78,29,126,35.2,0.692,54,1\n4,183,0,0,0,28.4,0.212,36,1\n1,124,60,32,0,35.8,0.514,21,0\n1,181,78,42,293,40,1.258,22,1\n1,92,62,25,41,19.5,0.482,25,0\n0,152,82,39,272,41.5,0.27,27,0\n1,111,62,13,182,24,0.138,23,0\n3,106,54,21,158,30.9,0.292,24,0\n3,174,58,22,194,32.9,0.593,36,1\n7,168,88,42,321,38.2,0.787,40,1\n6,105,80,28,0,32.5,0.878,26,0\n11,138,74,26,144,36.1,0.557,50,1\n3,106,72,0,0,25.8,0.207,27,0\n6,117,96,0,0,28.7,0.157,30,0\n2,68,62,13,15,20.1,0.257,23,0\n9,112,82,24,0,28.2,1.282,50,1\n0,119,0,0,0,32.4,0.141,24,1\n2,112,86,42,160,38.4,0.246,28,0\n2,92,76,20,0,24.2,1.698,28,0\n6,183,94,0,0,40.8,1.461,45,0\n0,94,70,27,115,43.5,0.347,21,0\n2,108,64,0,0,30.8,0.158,21,0\n4,90,88,47,54,37.7,0.362,29,0\n0,125,68,0,0,24.7,0.206,21,0\n0,132,78,0,0,32.4,0.393,21,0\n5,128,80,0,0,34.6,0.144,45,0\n4,94,65,22,0,24.7,0.148,21,0\n7,114,64,0,0,27.4,0.732,34,1\n0,102,78,40,90,34.5,0.238,24,0\n2,111,60,0,0,26.2,0.343,23,0\n1,128,82,17,183,27.5,0.115,22,0\n10,92,62,0,0,25.9,0.167,31,0\n13,104,72,0,0,31.2,0.465,38,1\n5,104,74,0,0,28.8,0.153,48,0\n2,94,76,18,66,31.6,0.649,23,0\n7,97,76,32,91,40.9,0.871,32,1\n1,100,74,12,46,19.5,0.149,28,0\n0,102,86,17,105,29.3,0.695,27,0\n4,128,70,0,0,34.3,0.303,24,0\n6,147,80,0,0,29.5,0.178,50,1\n4,90,0,0,0,28,0.61,31,0\n3,103,72,30,152,27.6,0.73,27,0\n2,157,74,35,440,39.4,0.134,30,0\n1,167,74,17,144,23.4,0.447,33,1\n0,179,50,36,159,37.8,0.455,22,1\n11,136,84,35,130,28.3,0.26,42,1\n0,107,60,25,0,26.4,0.133,23,0\n1,91,54,25,100,25.2,0.234,23,0\n1,117,60,23,106,33.8,0.466,27,0\n5,123,74,40,77,34.1,0.269,28,0\n2,120,54,0,0,26.8,0.455,27,0\n1,106,70,28,135,34.2,0.142,22,0\n2,155,52,27,540,38.7,0.24,25,1\n2,101,58,35,90,21.8,0.155,22,0\n1,120,80,48,200,38.9,1.162,41,0\n11,127,106,0,0,39,0.19,51,0\n3,80,82,31,70,34.2,1.292,27,1\n10,162,84,0,0,27.7,0.182,54,0\n1,199,76,43,0,42.9,1.394,22,1\n8,167,106,46,231,37.6,0.165,43,1\n9,145,80,46,130,37.9,0.637,40,1\n6,115,60,39,0,33.7,0.245,40,1\n1,112,80,45,132,34.8,0.217,24,0\n4,145,82,18,0,32.5,0.235,70,1\n10,111,70,27,0,27.5,0.141,40,1\n6,98,58,33,190,34,0.43,43,0\n9,154,78,30,100,30.9,0.164,45,0\n6,165,68,26,168,33.6,0.631,49,0\n1,99,58,10,0,25.4,0.551,21,0\n10,68,106,23,49,35.5,0.285,47,0\n3,123,100,35,240,57.3,0.88,22,0\n8,91,82,0,0,35.6,0.587,68,0\n6,195,70,0,0,30.9,0.328,31,1\n9,156,86,0,0,24.8,0.23,53,1\n0,93,60,0,0,35.3,0.263,25,0\n3,121,52,0,0,36,0.127,25,1\n2,101,58,17,265,24.2,0.614,23,0\n2,56,56,28,45,24.2,0.332,22,0\n0,162,76,36,0,49.6,0.364,26,1\n0,95,64,39,105,44.6,0.366,22,0\n4,125,80,0,0,32.3,0.536,27,1\n5,136,82,0,0,0,0.64,69,0\n2,129,74,26,205,33.2,0.591,25,0\n3,130,64,0,0,23.1,0.314,22,0\n1,107,50,19,0,28.3,0.181,29,0\n1,140,74,26,180,24.1,0.828,23,0\n1,144,82,46,180,46.1,0.335,46,1\n8,107,80,0,0,24.6,0.856,34,0\n13,158,114,0,0,42.3,0.257,44,1\n2,121,70,32,95,39.1,0.886,23,0\n7,129,68,49,125,38.5,0.439,43,1\n2,90,60,0,0,23.5,0.191,25,0\n7,142,90,24,480,30.4,0.128,43,1\n3,169,74,19,125,29.9,0.268,31,1\n0,99,0,0,0,25,0.253,22,0\n4,127,88,11,155,34.5,0.598,28,0\n4,118,70,0,0,44.5,0.904,26,0\n2,122,76,27,200,35.9,0.483,26,0\n6,125,78,31,0,27.6,0.565,49,1\n1,168,88,29,0,35,0.905,52,1\n2,129,0,0,0,38.5,0.304,41,0\n4,110,76,20,100,28.4,0.118,27,0\n6,80,80,36,0,39.8,0.177,28,0\n10,115,0,0,0,0,0.261,30,1\n2,127,46,21,335,34.4,0.176,22,0\n9,164,78,0,0,32.8,0.148,45,1\n2,93,64,32,160,38,0.674,23,1\n3,158,64,13,387,31.2,0.295,24,0\n5,126,78,27,22,29.6,0.439,40,0\n10,129,62,36,0,41.2,0.441,38,1\n0,134,58,20,291,26.4,0.352,21,0\n3,102,74,0,0,29.5,0.121,32,0\n7,187,50,33,392,33.9,0.826,34,1\n3,173,78,39,185,33.8,0.97,31,1\n10,94,72,18,0,23.1,0.595,56,0\n1,108,60,46,178,35.5,0.415,24,0\n5,97,76,27,0,35.6,0.378,52,1\n4,83,86,19,0,29.3,0.317,34,0\n1,114,66,36,200,38.1,0.289,21,0\n1,149,68,29,127,29.3,0.349,42,1\n5,117,86,30,105,39.1,0.251,42,0\n1,111,94,0,0,32.8,0.265,45,0\n4,112,78,40,0,39.4,0.236,38,0\n1,116,78,29,180,36.1,0.496,25,0\n0,141,84,26,0,32.4,0.433,22,0\n2,175,88,0,0,22.9,0.326,22,0\n2,92,52,0,0,30.1,0.141,22,0\n3,130,78,23,79,28.4,0.323,34,1\n8,120,86,0,0,28.4,0.259,22,1\n2,174,88,37,120,44.5,0.646,24,1\n2,106,56,27,165,29,0.426,22,0\n2,105,75,0,0,23.3,0.56,53,0\n4,95,60,32,0,35.4,0.284,28,0\n0,126,86,27,120,27.4,0.515,21,0\n8,65,72,23,0,32,0.6,42,0\n2,99,60,17,160,36.6,0.453,21,0\n1,102,74,0,0,39.5,0.293,42,1\n11,120,80,37,150,42.3,0.785,48,1\n3,102,44,20,94,30.8,0.4,26,0\n1,109,58,18,116,28.5,0.219,22,0\n9,140,94,0,0,32.7,0.734,45,1\n13,153,88,37,140,40.6,1.174,39,0\n12,100,84,33,105,30,0.488,46,0\n1,147,94,41,0,49.3,0.358,27,1\n1,81,74,41,57,46.3,1.096,32,0\n3,187,70,22,200,36.4,0.408,36,1\n6,162,62,0,0,24.3,0.178,50,1\n4,136,70,0,0,31.2,1.182,22,1\n1,121,78,39,74,39,0.261,28,0\n3,108,62,24,0,26,0.223,25,0\n0,181,88,44,510,43.3,0.222,26,1\n8,154,78,32,0,32.4,0.443,45,1\n1,128,88,39,110,36.5,1.057,37,1\n7,137,90,41,0,32,0.391,39,0\n0,123,72,0,0,36.3,0.258,52,1\n1,106,76,0,0,37.5,0.197,26,0\n6,190,92,0,0,35.5,0.278,66,1\n2,88,58,26,16,28.4,0.766,22,0\n9,170,74,31,0,44,0.403,43,1\n9,89,62,0,0,22.5,0.142,33,0\n10,101,76,48,180,32.9,0.171,63,0\n2,122,70,27,0,36.8,0.34,27,0\n5,121,72,23,112,26.2,0.245,30,0\n1,126,60,0,0,30.1,0.349,47,1\n1,93,70,31,0,30.4,0.315,23,0"}
+];
+
+const PD = "No dataset file needed. Install: pip install pandas";
+const NP = "No dataset file needed. Install: pip install numpy";
+const EDA = [
+{file:"ba_prac01a_eda_sales.py",prac:"Practical 1A",title:"EDA on business sales data",aim:"Collect data from a real-life business scenario and perform exploratory data analysis (EDA).",needs:PD,code:String.raw`import pandas as pd
+
+data = {
+    'Product': ['Mobile', 'Laptop', 'Rice', 'Shirt', 'Mobile'],
+    'Category': ['Electronics', 'Electronics', 'Groceries', 'Clothing', 'Electronics'],
+    'Sales': [15000, 45000, 3000, 2000, 18000]
+}
+
+df = pd.DataFrame(data)
+
+print("Dataset:")
+print(df)
+
+print("\nTotal Sales =", df['Sales'].sum())
+
+category_sales = df.groupby('Category')['Sales'].sum()
+print("\nSales by Category:")
+print(category_sales)
+
+print("\nStatistics:")
+print(df['Sales'].describe())
+
+print("\nInsights from EDA")
+print("Total Revenue: Rs.", df['Sales'].sum())
+print("Average Sale per Product: Rs.", df['Sales'].mean())
+print("Best-Selling Category:", category_sales.idxmax(), "(Rs.", category_sales.max(), ")")
+print("Lowest-Selling Category:", category_sales.idxmin(), "(Rs.", category_sales.min(), ")")
+`},
+{file:"ba_prac01b_customer_trends.py",prac:"Practical 1B",title:"Customer data trends and patterns",aim:"Analyze customer data to identify trends and patterns for business decision-making.",needs:PD,code:String.raw`import pandas as pd
+
+data = {
+    'Customer': ['A', 'B', 'C', 'D', 'E'],
+    'Age': [22, 35, 28, 45, 30],
+    'Purchase': [5000, 12000, 8000, 15000, 10000]
+}
+
+df = pd.DataFrame(data)
+
+print("Customer Data:")
+print(df)
+
+print("\nAverage Age =", df['Age'].mean())
+print("Average Purchase =", df['Purchase'].mean())
+
+print("\nHighest Purchase Customer:")
+print(df.loc[df['Purchase'].idxmax()])
+`},
+{file:"ba_prac02a_descriptive_stats.py",prac:"Practical 2A",title:"Descriptive statistics",aim:"Calculate Mean, Median, Mode, Variance, Standard Deviation, Minimum and Maximum for a variable.",needs:"No dataset file needed. Uses Python's built-in statistics module.",code:String.raw`import statistics
+
+marks = [45, 50, 55, 60, 65, 70, 75, 80, 85, 90]
+
+mean = statistics.mean(marks)
+median = statistics.median(marks)
+variance = statistics.variance(marks)
+std_dev = statistics.stdev(marks)
+minimum = min(marks)
+maximum = max(marks)
+
+try:
+    mode = statistics.mode(marks)
+except statistics.StatisticsError:
+    mode = "No unique mode"
+
+print("Mean =", mean)
+print("Median =", median)
+print("Mode =", mode)
+print("Variance =", variance)
+print("Standard Deviation =", round(std_dev, 2))
+print("Minimum =", minimum)
+print("Maximum =", maximum)
+`},
+{file:"ba_prac02b_histogram_boxplot.py",prac:"Practical 2B",title:"Histogram and box plot",aim:"Create visualizations (histogram, box plot) to depict the distribution of a variable.",needs:"No dataset file needed. Install: pip install matplotlib",code:String.raw`import matplotlib.pyplot as plt
+
+salaries = [25000, 28000, 30000, 32000, 35000,
+            38000, 40000, 42000, 45000, 48000,
+            50000, 52000, 55000, 60000, 65000]
+
+plt.figure(figsize=(6, 4))
+plt.hist(salaries, bins=5)
+plt.title("Histogram of Employee Salaries")
+plt.xlabel("Salary (Rs.)")
+plt.ylabel("Number of Employees")
+plt.show()
+
+plt.figure(figsize=(6, 4))
+plt.boxplot(salaries)
+plt.title("Box Plot of Employee Salaries")
+plt.ylabel("Salary (Rs.)")
+plt.show()
+`},
+{file:"ba_prac03a_correlation.py",prac:"Practical 3A",title:"Correlation analysis",aim:"Perform correlation analysis to find strength and direction of relationships between variables.",needs:PD,code:String.raw`import pandas as pd
+
+data = {
+    'Age': [22, 25, 28, 30, 35, 40, 45, 50],
+    'Experience': [1, 3, 5, 7, 10, 12, 15, 18],
+    'Salary': [25000, 30000, 35000, 40000, 50000, 60000, 70000, 85000]
+}
+
+df = pd.DataFrame(data)
+
+corr_matrix = df.corr()
+
+print("Dataset:")
+print(df)
+print("\nCorrelation Matrix:")
+print(corr_matrix.round(2))
+`},
+{file:"ba_prac03a_correlation_iris.py",prac:"Practical 3A (OR)",title:"Correlation analysis on Iris dataset",aim:"Correlation analysis using the built-in Iris dataset (alternative program).",needs:"Uses built-in Iris dataset. Install: pip install pandas scikit-learn",code:String.raw`import pandas as pd
+from sklearn.datasets import load_iris
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 200)
+
+iris = load_iris()
+
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+
+print("Dataset:")
+print(df.head(10))
+
+correlation_matrix = df.corr()
+
+print("\nCorrelation Matrix:")
+print(correlation_matrix)
+`},
+{file:"ba_prac03b_regression.py",prac:"Practical 3B",title:"Regression analysis",aim:"Apply regression analysis between advertising expenditure and sales revenue.",needs:"No dataset file needed. Install: pip install pandas scikit-learn",code:String.raw`import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+data = {
+    'Advertising_Expenditure': [10, 20, 30, 40, 50, 60, 70, 80],
+    'Sales_Revenue': [25, 35, 45, 55, 65, 75, 85, 95]
+}
+
+df = pd.DataFrame(data)
+
+X = df[['Advertising_Expenditure']]
+Y = df['Sales_Revenue']
+
+model = LinearRegression()
+model.fit(X, Y)
+
+predictions = model.predict(X)
+
+print("Dataset:")
+print(df)
+
+print("\nRegression Equation:")
+print(f"Sales Revenue = {model.coef_[0]:.2f} * Advertising Expenditure + {model.intercept_:.2f}")
+
+print("\nPredicted Sales Revenue:")
+for ad, pred in zip(df['Advertising_Expenditure'], predictions):
+    print(f"Advertising = {ad}, Predicted Sales = {pred:.2f}")
+`},
+{file:"ba_prac04a_dice_simulation.py",prac:"Practical 4A",title:"Dice rolling probability simulation",aim:"Simulate a probability experiment (rolling dice) and calculate probabilities of outcomes.",needs:"No dataset file needed. Uses Python's built-in random module.",code:String.raw`import random
+
+n = int(input("Enter the number of dice rolls: "))
+
+frequency = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+
+for i in range(n):
+    roll = random.randint(1, 6)
+    frequency[roll] += 1
+
+print("\nResults of Dice Rolling:")
+print("----------------------------")
+print("Face\tFrequency\tProbability")
+
+for face in range(1, 7):
+    probability = frequency[face] / n
+    print(face, "\t", frequency[face], "\t\t", round(probability, 4))
+`},
+{file:"ba_prac04b_distributions.py",prac:"Practical 4B",title:"Normal, Uniform and Exponential distributions",aim:"Generate random numbers from various probability distributions and analyze their properties.",needs:NP,code:String.raw`import numpy as np
+
+np.random.seed(10)
+
+n = int(input("Enter the number of samples: "))
+
+normal_data = np.random.normal(loc=50, scale=10, size=n)
+uniform_data = np.random.uniform(low=0, high=100, size=n)
+exponential_data = np.random.exponential(scale=5, size=n)
+
+def analyze(data, name):
+    print("\n" + "=" * 45)
+    print(name)
+    print("=" * 45)
+    print("Generated Values:")
+    print(np.round(data, 2))
+    print("Mean               :", round(np.mean(data), 2))
+    print("Minimum Value      :", round(np.min(data), 2))
+    print("Maximum Value      :", round(np.max(data), 2))
+    print("Standard Deviation :", round(np.std(data), 2))
+
+analyze(normal_data, "Normal Distribution")
+analyze(uniform_data, "Uniform Distribution")
+analyze(exponential_data, "Exponential Distribution")
+`},
+{file:"ba_prac05a_decision_tree_ev.py",prac:"Practical 5A",title:"Decision tree with expected value",aim:"Develop a decision tree model for a business decision with probabilities.",needs:"No dataset file needed. Uses plain Python.",code:String.raw`profit = 100000
+loss = -30000
+
+success_probability = 0.8
+failure_probability = 0.2
+
+expected_value = (profit * success_probability) + (loss * failure_probability)
+
+print("Decision Tree")
+print("----------------------------")
+print("            Start")
+print("              |")
+print("        Launch Product")
+print("         /          \\")
+print(f"Success ({success_probability*100:.0f}%)   Failure ({failure_probability*100:.0f}%)")
+print(f"Profit = {profit}      Loss = {loss}")
+
+print("\nExpected Value =", expected_value)
+
+if expected_value > 0:
+    print("Decision: Launch the Product")
+else:
+    print("Decision: Do Not Launch the Product")
+`},
+{file:"ba_prac05a_decision_tree_dataset.py",prac:"Practical 5A (OR)",title:"Decision analysis on a dataset",aim:"Expected value of multiple business decisions using an inbuilt dataset (alternative program).",needs:PD,code:String.raw`import pandas as pd
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 200)
+
+data = {
+    "Decision": [
+        "Launch Product A", "Launch Product B", "Upgrade Product",
+        "Expand Market", "Digital Marketing", "Open New Branch",
+        "Online Sales", "New Technology", "Price Discount",
+        "Customer Loyalty Program"
+    ],
+    "Success_Probability": [0.80, 0.65, 0.90, 0.70, 0.75, 0.60, 0.85, 0.78, 0.68, 0.88],
+    "Failure_Probability": [0.20, 0.35, 0.10, 0.30, 0.25, 0.40, 0.15, 0.22, 0.32, 0.12],
+    "Profit": [500000, 450000, 250000, 600000, 300000,
+               700000, 350000, 400000, 280000, 320000],
+    "Loss": [-150000, -180000, -50000, -250000, -100000,
+             -300000, -80000, -120000, -90000, -70000]
+}
+
+df = pd.DataFrame(data)
+
+df["Expected_Value"] = (
+    df["Success_Probability"] * df["Profit"] +
+    df["Failure_Probability"] * df["Loss"]
+)
+
+best_decision = df.loc[df["Expected_Value"].idxmax()]
+
+print("=" * 90)
+print("BUSINESS DECISION TREE ANALYSIS")
+print("=" * 90)
+print(df)
+
+print("\n" + "=" * 90)
+print("BEST DECISION")
+print("=" * 90)
+print("Decision            :", best_decision["Decision"])
+print("Expected Value (EV) :", best_decision["Expected_Value"])
+`},
+{file:"ba_prac05b_expected_value.py",prac:"Practical 5B",title:"Expected value of decision alternatives",aim:"Apply expected value to evaluate decision alternatives and select the optimal one.",needs:"No dataset file needed. Takes keyboard input. Uses plain Python.",code:String.raw`n = int(input("Enter the number of decision alternatives: "))
+
+best_ev = float('-inf')
+best_choice = ""
+
+for i in range(n):
+    print("\nDecision Alternative", i + 1)
+    name = input("Enter alternative name: ")
+
+    outcomes = int(input("Enter the number of possible outcomes: "))
+
+    ev = 0
+
+    for j in range(outcomes):
+        payoff = float(input(f"Enter payoff for outcome {j + 1}: "))
+        probability = float(input(f"Enter probability for outcome {j + 1}: "))
+        ev += payoff * probability
+
+    print(f"Expected Value of {name} = {ev:.2f}")
+
+    if ev > best_ev:
+        best_ev = ev
+        best_choice = name
+
+print("\n----- Result -----")
+print("Best Decision Alternative:", best_choice)
+print("Maximum Expected Value:", round(best_ev, 2))
+`},
+{file:"ba_prac06a_sampling_survey.py",prac:"Practical 6A",title:"Random sampling survey",aim:"Conduct a survey and collect data from a sample population using proper sampling.",needs:"No dataset file needed. Uses Python's built-in modules.",code:String.raw`import random
+import statistics
+
+population = {
+    "Student1": 2, "Student2": 3, "Student3": 4, "Student4": 5,
+    "Student5": 3, "Student6": 2, "Student7": 6, "Student8": 4,
+    "Student9": 3, "Student10": 5, "Student11": 4, "Student12": 2,
+    "Student13": 6, "Student14": 3, "Student15": 5, "Student16": 4,
+    "Student17": 2, "Student18": 5, "Student19": 3, "Student20": 4
+}
+
+sample_students = random.sample(list(population.keys()), 8)
+
+sample_data = [population[student] for student in sample_students]
+
+sample_mean = statistics.mean(sample_data)
+sample_std = statistics.stdev(sample_data)
+
+print("----- SURVEY RESULTS -----")
+print("Population Size:", len(population))
+print("Sample Size:", len(sample_students))
+
+print("\nSelected Students and Study Hours:")
+for student in sample_students:
+    print(student, ":", population[student], "hours")
+
+print("\nSample Data:", sample_data)
+print("Sample Mean:", round(sample_mean, 2), "hours")
+print("Sample Standard Deviation:", round(sample_std, 2), "hours")
+`},
+{file:"ba_prac06b_central_limit_theorem.py",prac:"Practical 6B",title:"Central Limit Theorem",aim:"Use the Central Limit Theorem to analyze the sampling distribution of a sample mean.",needs:NP,code:String.raw`import numpy as np
+
+population = np.array([
+    45, 50, 52, 55, 58, 60, 62, 65, 67, 70,
+    72, 74, 75, 78, 80, 82, 85, 88, 90, 95
+])
+
+population_mean = np.mean(population)
+population_std = np.std(population)
+
+sample_size = 5
+number_of_samples = 1000
+
+sample_means = []
+
+for i in range(number_of_samples):
+    sample = np.random.choice(population, sample_size)
+    sample_means.append(np.mean(sample))
+
+sample_means = np.array(sample_means)
+
+sampling_mean = np.mean(sample_means)
+sampling_std = np.std(sample_means)
+
+standard_error = population_std / np.sqrt(sample_size)
+
+print("----- Sampling and Sampling Distribution -----")
+print("Population Size:", len(population))
+print("Population Mean:", round(population_mean, 2))
+print("Population Standard Deviation:", round(population_std, 2))
+
+print("\nSample Size:", sample_size)
+print("Number of Samples:", number_of_samples)
+
+print("\n----- Sampling Distribution -----")
+print("Mean of Sample Means:", round(sampling_mean, 2))
+print("Standard Deviation of Sample Means:", round(sampling_std, 2))
+print("Theoretical Standard Error:", round(standard_error, 2))
+
+print("\nEstimated Population Mean:", round(sampling_mean, 2))
+`},
+{file:"ba_prac07a_regression_sales.py",prac:"Practical 7A",title:"Regression model to predict sales",aim:"Develop a regression model to predict future sales, assess performance and interpret predictors.",needs:"No dataset file needed. Install: pip install pandas scikit-learn",code:String.raw`import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, r2_score
+
+data = {
+    "Advertising": [10, 12, 15, 18, 20, 22, 25, 28, 30, 32, 35, 38],
+    "Customers": [200, 220, 250, 280, 300, 320, 350, 380, 400, 420, 450, 480],
+    "Sales": [52, 58, 65, 73, 80, 86, 95, 104, 110, 116, 125, 134]
+}
+
+df = pd.DataFrame(data)
+
+X = df[["Advertising", "Customers"]]
+y = df["Sales"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=42
+)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("REGRESSION ANALYSIS")
+print("-------------------")
+print("Advertising Coefficient:", round(model.coef_[0], 2))
+print("Customers Coefficient:", round(model.coef_[1], 2))
+print("MAE:", round(mae, 2))
+print("R2:", round(r2, 2))
+
+future = pd.DataFrame({
+    "Advertising": [40],
+    "Customers": [500]
+})
+
+prediction = model.predict(future)
+
+print("\nFUTURE SALES PREDICTION")
+print("-----------------------")
+print("Advertising = 40")
+print("Customers = 500")
+print("Predicted Sales =", round(prediction[0], 2))
+`},
+{file:"ba_prac07b_exponential_smoothing.py",prac:"Practical 7B",title:"Time series - Exponential Smoothing",aim:"Forecast future demand with exponential smoothing and evaluate forecast accuracy.",needs:"No dataset file needed. Install: pip install numpy scikit-learn statsmodels",code:String.raw`import warnings
+import numpy as np
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+warnings.filterwarnings("ignore")
+
+demand = [120, 125, 132, 128, 140, 145,
+          150, 148, 155, 162, 168, 175]
+
+train = demand[:10]
+test = demand[10:]
+
+model = ExponentialSmoothing(train, trend="add").fit()
+
+forecast = model.forecast(2)
+
+mae = mean_absolute_error(test, forecast)
+rmse = np.sqrt(mean_squared_error(test, forecast))
+
+print("TIME SERIES ANALYSIS")
+print("--------------------")
+print("Input Demand:", demand)
+print("Actual Demand:", test)
+print("Forecast Demand:", [round(float(x), 2) for x in forecast])
+print("MAE:", round(float(mae), 2))
+print("RMSE:", round(float(rmse), 2))
+
+future = model.forecast(3)
+
+print("\nFUTURE DEMAND FORECAST")
+print("----------------------")
+print([round(float(x), 2) for x in future])
+`},
+{file:"ba_prac08a_hypothesis_ttest.py",prac:"Practical 8A",title:"Hypothesis testing - one-sample t-test",aim:"Formulate hypotheses for a business problem, run a hypothesis test and interpret the result.",needs:"No dataset file needed. Install: pip install numpy scipy",code:String.raw`import numpy as np
+from scipy.stats import ttest_1samp
+
+sales = np.array([52000, 48000, 51000, 53000, 49500,
+                  50500, 51500, 49000, 52500, 50000])
+
+claimed_mean = 50000
+
+t_stat, p_value = ttest_1samp(sales, claimed_mean)
+
+print("Sample Mean:", sales.mean())
+print("Claimed Mean:", claimed_mean)
+print("t-statistic:", round(t_stat, 2))
+print("p-value:", round(p_value, 4))
+
+alpha = 0.05
+
+if p_value < alpha:
+    print("Reject the Null Hypothesis")
+    print("There is significant evidence that average sales differ from Rs. 50,000.")
+else:
+    print("Fail to Reject the Null Hypothesis")
+    print("There is not enough evidence that average sales differ from Rs. 50,000.")
+`},
+{file:"ba_prac08b_ab_testing.py",prac:"Practical 8B",title:"A/B testing - two-proportion z-test",aim:"Perform A/B testing on a marketing campaign and make a data-driven decision.",needs:"No dataset file needed. Install: pip install statsmodels",code:String.raw`from statsmodels.stats.proportion import proportions_ztest
+
+conversions = [80, 120]
+visitors = [1000, 1000]
+
+z_stat, p_value = proportions_ztest(conversions, visitors)
+
+rate_A = conversions[0] / visitors[0] * 100
+rate_B = conversions[1] / visitors[1] * 100
+
+print("Campaign A Conversion Rate:", rate_A, "%")
+print("Campaign B Conversion Rate:", rate_B, "%")
+print("z-statistic:", round(z_stat, 2))
+print("p-value:", round(p_value, 4))
+
+alpha = 0.05
+
+if p_value < alpha:
+    print("Reject the Null Hypothesis")
+    print("The conversion rates are significantly different.")
+else:
+    print("Fail to Reject the Null Hypothesis")
+    print("There is no significant difference in conversion rates.")
+`},
+{file:"ba_prac09a_linear_programming.py",prac:"Practical 9A",title:"Optimization - Linear Programming",aim:"Formulate an optimization model for a business problem and analyze the optimal solution.",needs:"No dataset file needed. Install: pip install scipy",code:String.raw`from scipy.optimize import linprog
+
+profit = [-40, -30]
+
+A = [
+    [2, 1],
+    [1, 2]
+]
+
+b = [40, 50]
+
+result = linprog(
+    profit,
+    A_ub=A,
+    b_ub=b,
+    bounds=[(0, None), (0, None)],
+    method="highs"
+)
+
+if result.success:
+    product_A = result.x[0]
+    product_B = result.x[1]
+    maximum_profit = -result.fun
+
+    print("Optimal Production Plan")
+    print("-----------------------")
+    print("Product A:", round(product_A, 2), "units")
+    print("Product B:", round(product_B, 2), "units")
+    print("Maximum Profit: Rs.", round(maximum_profit, 2))
+else:
+    print("No optimal solution found.")
+`},
+{file:"ba_prac09b_pricing_simulation.py",prac:"Practical 9B",title:"Simulation modeling - pricing strategies",aim:"Use simulation modeling to evaluate pricing strategies and assess impact on performance metrics.",needs:"No dataset file needed. Uses Python's built-in random module.",code:String.raw`import random
+
+random.seed(10)
+
+customer_demand = [random.randint(50, 100) for i in range(5)]
+
+prices = [100, 120, 150]
+
+cost = 60
+
+print("Customer Demand:", customer_demand)
+
+for price in prices:
+    total_revenue = 0
+    total_profit = 0
+    total_sales = 0
+
+    for demand in customer_demand:
+        if price == 100:
+            sales = demand
+        elif price == 120:
+            sales = int(demand * 0.8)
+        else:
+            sales = int(demand * 0.6)
+
+        revenue = sales * price
+        profit = sales * (price - cost)
+
+        total_sales += sales
+        total_revenue += revenue
+        total_profit += profit
+
+    print("\nProduct Price: Rs.", price)
+    print("Total Sales:", total_sales)
+    print("Total Revenue: Rs.", total_revenue)
+    print("Total Profit: Rs.", total_profit)
+`}
+];
+const PYC = "No dataset file needed. Install: pip install pycryptodome (if you have the old 'pycrypto', run pip uninstall pycrypto first)";
+const CIS = [
+{file:"cis_prac01a_caesar_cipher.py",prac:"Practical 1A",title:"Substitution Cipher - Caesar Cipher",aim:"Encrypt and decrypt messages using a classical substitution technique.",needs:"No dataset file needed. Uses plain Python.",code:String.raw`def caesar_cipher(text, shift):
+    result = ""
+    for char in text:
+        if char.isalpha():
+            offset = ord('a') if char.islower() else ord('A')
+            result += chr((ord(char) - offset + shift) % 26 + offset)
+        else:
+            result += char
+    return result
+
+message = input("Enter the text to encrypt: ")
+shift = 3
+
+encrypted_message = caesar_cipher(message, shift)
+print("Encrypted:", encrypted_message)
+
+decrypted_message = caesar_cipher(encrypted_message, -shift)
+print("Decrypted:", decrypted_message)
+`},
+{file:"cis_prac01b_railfence_cipher.py",prac:"Practical 1B",title:"Transposition Cipher - Rail Fence Cipher",aim:"Encrypt and decrypt messages using a classical transposition technique.",needs:"No dataset file needed. Uses plain Python.",code:String.raw`def rail_fence_encrypt(text):
+    return text[::2] + text[1::2]
+
+def rail_fence_decrypt(cipher):
+    half = (len(cipher) + 1) // 2
+    first, second = cipher[:half], cipher[half:]
+    return ''.join(
+        first[i // 2] if i % 2 == 0 else second[i // 2]
+        for i in range(len(cipher))
+    )
+
+if __name__ == "__main__":
+    text = input("Enter the text: ")
+
+    encrypted = rail_fence_encrypt(text)
+    print("Encrypted:", encrypted)
+
+    decrypted = rail_fence_decrypt(encrypted)
+    print("Decrypted:", decrypted)
+`},
+{file:"cis_prac02_rsa_encryption.py",prac:"Practical 2",title:"RSA Encryption and Decryption",aim:"Implement the RSA algorithm for public-key encryption and decryption.",needs:PYC,code:String.raw`from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
+import binascii
+
+keyPair = RSA.generate(1024)
+
+pubKey = keyPair.publickey()
+print(f"Public key: (n={hex(pubKey.n)}, e={hex(pubKey.e)})")
+
+pubKeyPEM = pubKey.export_key()
+print(pubKeyPEM.decode('ascii'))
+
+privKey = keyPair
+print(f"Private key: (n={hex(privKey.n)}, d={hex(privKey.d)})")
+
+privKeyPEM = privKey.export_key()
+print(privKeyPEM.decode('ascii'))
+
+msg = b'SDSM College'
+encryptor = PKCS1_OAEP.new(pubKey)
+encrypted = encryptor.encrypt(msg)
+print("Encrypted:", binascii.hexlify(encrypted))
+
+decryptor = PKCS1_OAEP.new(privKey)
+decrypted = decryptor.decrypt(encrypted)
+print("Decrypted:", decrypted.decode('utf-8'))
+`},
+{file:"cis_prac03a_md5.py",prac:"Practical 3A",title:"Message Authentication - MD5",aim:"Generate message digests for ensuring data integrity using the MD5 algorithm.",needs:"No dataset file needed. Uses Python's built-in hashlib.",code:String.raw`import hashlib
+
+result = hashlib.md5(b'Priya')
+result1 = hashlib.md5(b'Rajak')
+
+print("The byte equivalent of hash(Priya):", end="")
+print(result.digest())
+
+print("The byte equivalent of hash(Rajak) :", end="")
+print(result1.digest())
+`},
+{file:"cis_prac03b_sha1.py",prac:"Practical 3B",title:"Message Authentication - SHA",aim:"Generate message digests for ensuring data integrity using the SHA algorithm.",needs:"No dataset file needed. Uses Python's built-in hashlib.",code:String.raw`import hashlib
+
+text = input("Enter the value to encode: ")
+
+result = hashlib.sha1(text.encode())
+
+print("The Hexadecimal Equivalent of SHA1 is:")
+print(result.hexdigest())
+`},
+{file:"cis_prac04_digital_signature.py",prac:"Practical 4",title:"Digital Signature (RSA)",aim:"Implement RSA-based digital signatures and verify integrity and authenticity of signed messages.",needs:PYC,code:String.raw`from Crypto.PublicKey import RSA
+from Crypto.Signature import pkcs1_15
+from Crypto.Hash import SHA256
+
+key = RSA.generate(2048)
+private_key = key.export_key()
+public_key = key.publickey().export_key()
+
+original_document = b"This is the original document content."
+modified_document = b"This is the modified document content."
+
+original_hash = SHA256.new(original_document)
+modified_hash = SHA256.new(modified_document)
+
+signature = pkcs1_15.new(RSA.import_key(private_key)).sign(original_hash)
+
+try:
+    pkcs1_15.new(RSA.import_key(public_key)).verify(modified_hash, signature)
+    print("Signature is valid.")
+except (ValueError, TypeError):
+    print("Signature is invalid.")
+`},
+{file:"cis_prac05_diffie_hellman.py",prac:"Practical 5",title:"Diffie-Hellman Key Exchange",aim:"Implement the Diffie-Hellman key exchange between two entities.",needs:"No dataset file needed. Uses plain Python.",code:String.raw`if __name__ == "__main__":
+    N = 23
+    G = 37
+
+    print('The Value of N is: %d' % N)
+    print('The Value of G is: %d' % G)
+
+    a = 4
+    print('Secret Number for Priya is: %d' % a)
+    x = pow(G, a, N)
+
+    b = 5
+    print('Secret Number for Preet: %d' % b)
+    y = pow(G, b, N)
+
+    ka = pow(y, a, N)
+    kb = pow(x, b, N)
+
+    print('Secret Key for Priya is: %d' % ka)
+    print('Secret Key for Preet is: %d' % kb)
+`},
+{file:"cis_prac06_malware_analysis_steps.txt",prac:"Practical 6",title:"Malware Analysis and Detection (steps)",aim:"Analyze a clean malware sample using VirusShare and VirusTotal. No code in this practical.",needs:"No code. Do this only in a safe environment and never open or run the sample.",code:String.raw`1. Download a clean malware sample from a trusted, authorized site. Example: www.virusshare.com (an account is needed).
+2. Open VirusShare, click Account > Login and sign in with the credentials given in your journal. If you have none, click About and follow the instructions to email for access.
+3. Click the download icon. The sample downloads as a ZIP file.
+4. The ZIP password is: infected. Do not unzip it. Create a folder named Malware on the Desktop and save the ZIP inside it.
+5. Open www.virustotal.com.
+6. Click Choose File and select the ZIP file. If asked for a password, enter: infected.
+7. Wait for the upload and scan to finish.
+8. Interpret the result: the report shows how many security vendors flagged the file as malicious (journal result: 51 out of 51). The Detection tab shows the threat types.
+`},
+{file:"cis_prac07_firewall_steps.txt",prac:"Practical 7",title:"Firewall Configuration and Rule-based Filtering (steps)",aim:"Configure and test Windows Defender Firewall rules. No code in this practical (the journal PDF labels it Practical No. 8).",needs:"No code. Needs Windows with administrator rights.",code:String.raw`Part 1: Block HTTP/HTTPS traffic
+1. Open any website in the browser and confirm HTTP/HTTPS works.
+2. Open Windows Defender Firewall, then click Advanced settings.
+3. Click Inbound Rules, then New Rule.
+4. Select Port and click Next.
+5. Select TCP, choose Specific local ports and enter: 80,443
+6. Click Next, select Block the connection, click Next.
+7. Keep the profiles selected, click Next.
+8. Name the rule (for example HTTPblock) and click Finish. The inbound rule is added.
+9. Repeat steps 3 to 8 under Outbound Rules.
+10. Try to open a website again. The access is blocked.
+
+Part 2: Block the website zero.webappsecurity.com
+1. Open zero.webappsecurity.com in the browser. It is accessible.
+2. Open Command Prompt and find the IP address:
+   nslookup zero.webappsecurity.com
+   (journal result: 54.82.22.214)
+3. Open Windows Defender Firewall > Advanced settings > Inbound Rules > New Rule.
+4. Add the IP addresses of the website (IPv4 and IPv6) as the remote IP addresses.
+5. Select Block the connection, give the rule a suitable name and click Finish.
+6. Repeat the same under Outbound Rules.
+7. Open zero.webappsecurity.com again. It is now blocked.
+`},
+{file:"cis_prac08a_ipsec_R0_commands.txt",prac:"Practical 8A",title:"IPsec - Router R0 (Packet Tracer)",aim:"Configure R0, the internet router between R1 and R2.",needs:"Cisco Packet Tracer. Paste in the CLI tab of Router0.",code:String.raw`enable
+configure terminal
+hostname R0
+interface g0/0
+ip address 30.0.0.2 255.255.255.252
+no shutdown
+exit
+interface g0/1
+ip address 20.0.0.2 255.255.255.252
+no shutdown
+exit
+exit
+`},
+{file:"cis_prac08b_ipsec_R1_commands.txt",prac:"Practical 8B",title:"IPsec - Router R1 (Packet Tracer)",aim:"Configure R1 and its IPsec VPN tunnel to R2.",needs:"Cisco Packet Tracer. Paste Stage 1, wait for the reload, then paste Stage 2.",code:String.raw`-------- Stage 1 --------
+enable
+configure terminal
+interface g0/0
+ip address 20.0.0.1 255.255.255.252
+no shutdown
+exit
+interface g0/1
+ip address 192.168.1.1 255.255.255.0
+no shutdown
+exit
+ip route 0.0.0.0 0.0.0.0 20.0.0.2
+hostname R1
+exit
+show version
+configure terminal
+license boot module c1900 technology-package securityk9
+exit
+copy run startup-config
+reload
+
+-------- Stage 2 (after reload) --------
+enable
+show version
+configure terminal
+access-list 100 permit ip 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255
+crypto isakmp policy 10
+encryption aes 256
+authentication pre-share
+group 5
+exit
+crypto isakmp key priya address 30.0.0.1
+crypto ipsec transform-set R1->R2 esp-aes 256 esp-sha-hmac
+crypto map IPSEC-MAP 10 ipsec-isakmp
+set peer 30.0.0.1
+set pfs group5
+set security-association lifetime seconds 86400
+set transform-set R1->R2
+match address 100
+exit
+interface g0/0
+crypto map IPSEC-MAP
+exit
+exit
+`},
+{file:"cis_prac08c_ipsec_R2_commands.txt",prac:"Practical 8C",title:"IPsec - Router R2 (Packet Tracer)",aim:"Configure R2 and its IPsec VPN tunnel to R1.",needs:"Cisco Packet Tracer. Paste Stage 1, wait for the reload, then paste Stage 2.",code:String.raw`-------- Stage 1 --------
+enable
+configure terminal
+interface g0/0
+ip address 30.0.0.1 255.255.255.252
+no shutdown
+exit
+interface g0/1
+ip address 192.168.2.1 255.255.255.0
+no shutdown
+exit
+ip route 0.0.0.0 0.0.0.0 30.0.0.2
+hostname R2
+exit
+show version
+configure terminal
+license boot module c1900 technology-package securityk9
+exit
+copy run startup-config
+reload
+
+-------- Stage 2 (after reload) --------
+enable
+show version
+configure terminal
+access-list 100 permit ip 192.168.2.0 0.0.0.255 192.168.1.0 0.0.0.255
+crypto isakmp policy 10
+encryption aes 256
+authentication pre-share
+group 5
+exit
+crypto isakmp key priya address 20.0.0.1
+crypto ipsec transform-set R2->R1 esp-aes 256 esp-sha-hmac
+crypto map IPSEC-MAP 10 ipsec-isakmp
+set peer 20.0.0.1
+set pfs group5
+set security-association lifetime seconds 86400
+set transform-set R2->R1
+match address 100
+exit
+interface g0/0
+crypto map IPSEC-MAP
+exit
+exit
+`},
+{file:"cis_prac08d_ipsec_pc_settings_and_ping.txt",prac:"Practical 8D",title:"IPsec - PC settings and tunnel test",aim:"Configure the PCs and verify the IPsec VPN tunnel with ping.",needs:"Cisco Packet Tracer. Set the IP on each PC under Desktop > IP Configuration.",code:String.raw`PC0 (connected to R1)
+IP Address      : 192.168.1.2
+Subnet Mask     : 255.255.255.0
+Default Gateway : 192.168.1.1
+
+PC1 (connected to R2)
+IP Address      : 192.168.2.2
+Subnet Mask     : 255.255.255.0
+Default Gateway : 192.168.2.1
+
+Test the tunnel from the Command Prompt of PC0:
+ping 192.168.2.2
+
+Test the tunnel from the Command Prompt of PC1:
+ping 192.168.1.2
+`},
+{file:"Client.java",prac:"Practical 9A",title:"SSL/TLS practical - Client program",aim:"Client side of the client-server socket communication (save as Client.java).",needs:"Needs JDK. Compile both files: javac Client.java Server.java. The package line was removed so it runs outside an IDE.",code:String.raw`import java.util.*;
+import java.io.*;
+import java.net.*;
+
+public class Client {
+    public static void main(String[] args) {
+        Socket socket = null;
+        java.io.InputStreamReader insr = null;
+        java.io.OutputStreamWriter oswr = null;
+        java.io.BufferedReader br = null;
+        java.io.BufferedWriter bw = null;
+        try {
+            socket = new Socket("localhost", 8081);
+            insr = new InputStreamReader(socket.getInputStream());
+            oswr = new OutputStreamWriter(socket.getOutputStream());
+            br = new BufferedReader(insr);
+            bw = new BufferedWriter(oswr);
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Send Message to server:");
+            while (true) {
+                String msgtosend = sc.nextLine();
+                bw.write(msgtosend);
+                bw.newLine();
+                bw.flush();
+                if (msgtosend.equalsIgnoreCase("BYE")) {
+                    break;
+                }
+            }
+            bw.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+    }
+}
+`},
+{file:"Server.java",prac:"Practical 9B",title:"SSL/TLS practical - Server program",aim:"Server side of the client-server socket communication (save as Server.java). Run it first: java Server",needs:"Needs JDK. Start Server first in one terminal, then run java Client in another terminal and type messages. Type BYE to stop the client.",code:String.raw`import java.io.*;
+import java.net.*;
+
+public class Server {
+    public static void main(String[] args) throws IOException {
+        Socket socket;
+        ServerSocket serversocket = new ServerSocket(8081);
+        java.io.InputStreamReader insr = null;
+        java.io.OutputStreamWriter oswr = null;
+        java.io.BufferedReader br = null;
+        java.io.BufferedWriter bw = null;
+
+        while (true) {
+            try {
+                socket = serversocket.accept();
+                insr = new InputStreamReader(socket.getInputStream());
+                oswr = new OutputStreamWriter(socket.getOutputStream());
+                br = new BufferedReader(insr);
+                bw = new BufferedWriter(oswr);
+                while (true) {
+                    String msgfromclient = br.readLine();
+                    if (msgfromclient == null) {
+                        break;
+                    }
+                    System.out.println(msgfromclient);
+                    bw.write("Message Received");
+                    bw.newLine();
+                    bw.flush();
+                    if (msgfromclient.equalsIgnoreCase("BYE")) {
+                        break;
+                    }
+                }
+                bw.close();
+            } catch (Exception e) {
+                System.out.println("Error: " + e);
+            }
+        }
+    }
+}
+`}
+];
+
+const JN = "Needs JDK 11+, Eclipse, Selenium 4 Java JARs and Firefox. In Eclipse create the class in the package named on the first line (or delete that line to run from a plain folder). If geckodriver is not found at DRIVER_PATH, Selenium Manager finds it automatically.";
+const STQA = [
+{file:"index.html",prac:"Practical 1A",title:"Arithmetic Operations page (test target)",aim:"Web page used to create the Selenium IDE test suite (addition, subtraction, multiplication, division).",needs:"Put it in the Web Pages folder of the NetBeans web application.",code:String.raw`<html>
+<head>
+<title>prac1</title>
+<script language="javascript">
+function addition() {
+    var num1 = parseInt(document.arithmetic.n1.value);
+    var num2 = parseInt(document.arithmetic.n2.value);
+    var result = num1 + num2;
+    document.arithmetic.res.value = result;
+}
+function subtraction() {
+    var num1 = parseInt(document.arithmetic.n1.value);
+    var num2 = parseInt(document.arithmetic.n2.value);
+    var result = num1 - num2;
+    document.arithmetic.res.value = result;
+}
+function multiplication() {
+    var num1 = parseInt(document.arithmetic.n1.value);
+    var num2 = parseInt(document.arithmetic.n2.value);
+    var result = num1 * num2;
+    document.arithmetic.res.value = result;
+}
+function division() {
+    var num1 = parseInt(document.arithmetic.n1.value);
+    var num2 = parseInt(document.arithmetic.n2.value);
+    var result = num1 / num2;
+    document.arithmetic.res.value = result;
+}
+</scr`+'ipt>'+String.raw`
+</head>
+<body>
+<h1 align="center">Arithmetic Operations</h1>
+<form name="arithmetic">
+<table border="1" align="center">
+<tr>
+<td>Number 1 :</td>
+<td><input type="text" name="n1" size="20"></td>
+</tr>
+<tr>
+<td>Number 2 :</td>
+<td><input type="text" name="n2" size="20"></td>
+</tr>
+<tr>
+<td colspan="2">
+<input type="button" name="add" value="Add" onclick="javascript:addition();">&nbsp;
+<input type="button" name="sub" value="Subtract" onclick="javascript:subtraction();">&nbsp;
+<input type="button" name="mul" value="Multiply" onclick="javascript:multiplication();">&nbsp;
+<input type="button" name="div" value="Divide" onclick="javascript:division();">&nbsp;
+</td>
+</tr>
+<tr>
+<td colspan="2">Result is: <input type="text" name="res" size="20" value=""></td>
+</tr>
+</table>
+</form>
+</body>
+</html>
+`},
+{file:"newjsp.jsp",prac:"Practical 1B",title:"JSP page linking to index.html",aim:"JSP file with a link to the created HTML file.",needs:"Create it in the same NetBeans web application, then run it with GlassFish.",code:String.raw`<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>JSP Page</title>
+</head>
+<body align="center">
+<h1>Test Cases IDE</h1>
+<a href="index.html">Arithmetic Operations</a>
+</body>
+</html>
+`},
+{file:"stqa_prac01c_selenium_ide_test_suite_steps.txt",prac:"Practical 1C",title:"Selenium IDE test suite (steps)",aim:"Create a test suite in Selenium IDE with at least four test cases and export the script in WebDriver format.",needs:"No code. Needs Selenium IDE browser extension and NetBeans IDE with GlassFish.",code:String.raw`1. Open Google and search for: Selenium IDE chrome
+2. Open the first result and click Add to Chrome to install Selenium IDE.
+3. Create a web application in NetBeans: File > New Project > Java Web > Web Application > Add GlassFish Server > Finish.
+4. Open index.html and paste the Arithmetic Operations code (file index.html).
+5. Create a JSP file named newjsp.jsp with a link to index.html (file newjsp.jsp).
+6. Run newjsp.jsp from NetBeans. It opens in a browser.
+   - Open the Arithmetic Operations page using the link.
+   - Copy the page URL and open Selenium IDE.
+   - Create a new project and enter the project name.
+   - Paste the URL and click Start Recording.
+   - A new tab opens. Maximize it. This is the working tab.
+   - Perform the required actions on the Arithmetic Operations page.
+7. Click Stop Recording and give the test case a name such as addition.
+   - Save the project. It is saved with the .side extension.
+   - Run the addition test and check the result in the Log area of Selenium IDE.
+   Note 1: you can set the Test Execution speed.
+   Note 2: if a GlassFish error occurs between test cases, paste the URL again.
+8. Create 3 more test cases (subtraction, multiplication, division). Then click Run all tests.
+9. To export the WebDriver script: right-click the test suite > Export > select the language > Export.
+10. Finish.
+`},
+{file:"stqa_prac02_selenium_ide_redbus_steps.txt",prac:"Practical 2",title:"Cross-website functional testing with Selenium IDE (steps)",aim:"Create a test suite for two different websites in Selenium IDE and generate execution logs.",needs:"No code. Needs the Selenium IDE browser extension and an internet connection.",code:String.raw`1. Search Google for: Selenium IDE chrome. Open the first relevant result and add the Selenium IDE extension to the browser.
+2. We use redbus.in as the first website and check the Selenium IDE commands assertText, verifyTitle, storeText and echo.
+3. Open redbus.in in the browser, copy the URL of the page and open the Selenium IDE extension.
+4. In Selenium IDE choose Record a new test in a new project.
+   - Enter a suitable project name and click OK.
+   - In Set your project's base URL paste the RedBus URL.
+   - Click Start Recording.
+5. A new tab is opened. Maximize it. This is your working tab.
+   - In the working redbus.in tab right-click anywhere on the page and select Selenium IDE > Verify Title. Check that the verifyTitle command is recorded.
+   - Fill the FROM location, TO location and travel date fields.
+   - Click Search buses to continue (avoid unnecessary clicks).
+6. After the bus search results appear, find the bus provider name.
+   - Right-click it > Selenium IDE > Assert Text.
+7. Find the ticket price on the page.
+   - Right-click the price > Selenium IDE > Store Text to save the price for later use.
+   - Selenium IDE asks for a variable name. Enter: price and click OK.
+   - Confirm that Selenium IDE maps the selected element to its CSS target.
+8. Click the next empty line in Selenium IDE and enter the echo command with the variable `+'${price}'+String.raw` to display the stored price.
+9. Run the current test. After it completes, check the Log area. You will see the echo output with the stored price, which means the value was stored in the variable price by storeText.
+10. Repeat the same steps for a second website to complete the suite. Finish.
+`},
+{file:"stqa_webdriver_setup_steps.txt",prac:"Practicals 3 to 13",title:"Eclipse + Selenium WebDriver project setup (steps)",aim:"One-time setup used by all Java WebDriver practicals.",needs:"No code. Needs JDK, Eclipse IDE, Selenium Server and Client Driver JARs, geckodriver and Firefox.",code:String.raw`Pre-requisites
+1. JDK is installed.
+2. Eclipse IDE is installed.
+3. Selenium Server and Client Driver (JAR files) are downloaded.
+4. Geckodriver is downloaded.
+5. A stable internet connection is available.
+
+Steps
+1. Open Eclipse, select your workspace directory and click Launch.
+2. Create a project: File > New > Java Project.
+3. Name the project (for example p3) and click Finish. Click Don't create module.
+4. Close the Welcome tab. Create a package: right-click the project > New > Package > enter the name > Finish.
+5. Create a class: right-click the package > New > Class > enter the name > Finish.
+6. Add the Selenium JAR files:
+   - Right-click the project > Build Path > Configure Build Path.
+   - Libraries > Classpath > Add External JARs.
+   - Browse to the JAR files, select them, click Apply and Close.
+7. Paste the Java code into the class. If geckodriver is not found, change the DRIVER_PATH value in the code to your geckodriver.exe path.
+8. Run the file: right-click the class > Run As > Java Application.
+`},
+{file:"FindAllObjects.java",prac:"Practical 3",title:"Object identification and counting on a web page",aim:"Identify and count links, images, buttons and input elements on a web page and display categorized counts.",needs:JN,code:String.raw`package p3;
+
+import java.io.File;
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public class FindAllObjects {
+
+    private static final String DRIVER_PATH = "C:\\Users\\Student\\STQA\\geckodriver.exe";
+
+    public static void main(String[] args) {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        WebDriver driver = new FirefoxDriver();
+        try {
+            driver.get("https://www.google.co.in/");
+
+            List<WebElement> links = driver.findElements(By.tagName("a"));
+            List<WebElement> images = driver.findElements(By.tagName("img"));
+            List<WebElement> buttons = driver.findElements(By.tagName("button"));
+            List<WebElement> inputs = driver.findElements(By.tagName("input"));
+
+            System.out.println("Link texts:");
+            for (WebElement link : links) {
+                String text = link.getText();
+                if (!text.isEmpty()) {
+                    System.out.println(text);
+                }
+            }
+
+            System.out.println();
+            System.out.println("Total No. of Links   : " + links.size());
+            System.out.println("Total No. of Images  : " + images.size());
+            System.out.println("Total No. of Buttons : " + buttons.size());
+            System.out.println("Total No. of Inputs  : " + inputs.size());
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"FacebookLoginTest.java",prac:"Practical 4",title:"Login automation and validation (FB_login)",aim:"Automate login on a web page, verify the page title and check that the login completed.",needs:JN+" Enter your own EMAIL and PASSWORD in the code before running.",code:String.raw`package p4;
+
+import java.io.File;
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class FacebookLoginTest {
+
+    private static final String DRIVER_PATH = "C:\\Users\\Student\\STQA\\geckodriver.exe";
+    private static final String EMAIL = "your email id";
+    private static final String PASSWORD = "your password";
+
+    public static void main(String[] args) {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        WebDriver driver = new FirefoxDriver();
+        try {
+            driver.get("https://www.facebook.com/");
+            driver.manage().window().maximize();
+
+            String actualTitle = driver.getTitle();
+            if (actualTitle.contains("Facebook")) {
+                System.out.println("Verification Successful - The correct title is displayed on the web page.");
+            } else {
+                System.out.println("Verification Failed - An incorrect title is displayed on the web page.");
+            }
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+
+            WebElement username = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+            username.clear();
+            username.sendKeys(EMAIL);
+
+            WebElement password = driver.findElement(By.id("pass"));
+            password.clear();
+            password.sendKeys(PASSWORD);
+
+            WebElement loginButton = driver.findElement(By.name("login"));
+            loginButton.click();
+
+            wait.until(ExpectedConditions.not(ExpectedConditions.urlToBe("https://www.facebook.com/")));
+            System.out.println("Current URL after login: " + driver.getCurrentUrl());
+            System.out.println("Test script executed successfully");
+        } catch (Exception e) {
+            System.out.println("Test script finished with message: " + e.getMessage());
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"stqa_prac05_06_grid_commands.txt",prac:"Practicals 5 and 6",title:"Selenium Grid - commands (hub and node)",aim:"Start the Selenium Grid hub and nodes before running the Grid programs.",needs:"No code. Needs JDK 11+ and the selenium-server JAR (journal version: selenium-server-4.46.0.jar) in C:\\selenium.",code:String.raw`Step 1: create a folder C:\selenium and place the selenium-server JAR in it.
+
+Step 2: check the JAR. Open Command Prompt:
+cd C:\selenium
+java -jar selenium-server-4.46.0.jar info
+
+Step 3: start the Hub (first Command Prompt):
+cd C:\selenium
+java -jar selenium-server-4.46.0.jar hub
+The hub is available at http://localhost:4444
+
+Step 4: start a Node (second Command Prompt):
+cd C:\selenium
+java -jar selenium-server-4.46.0.jar node
+The node registers with the hub on its own and detects the installed browsers (Chrome, Firefox, Edge).
+
+Step 5 (optional, journal command for Firefox node, only if your node does not show Firefox):
+java -jar selenium-server-4.46.0.jar node --detect-drivers true
+
+Step 6: open http://localhost:4444 in a browser and check that the node and its browsers are listed.
+
+Step 7: run the Java program from Eclipse while the hub and node are running.
+`},
+{file:"GridChromeTest.java",prac:"Practical 5A",title:"Selenium Grid - remote test on Chrome (grid1)",aim:"Run a test script on the Selenium Grid hub using Chrome.",needs:JN+" Start the Grid first (see stqa_prac05_06_grid_commands.txt).",code:String.raw`package seleniumgrid;
+
+import java.net.URL;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class GridChromeTest {
+
+    public static void main(String[] args) throws Exception {
+        ChromeOptions options = new ChromeOptions();
+
+        WebDriver driver = new RemoteWebDriver(new URL("http://localhost:4444"), options);
+        try {
+            driver.get("https://www.google.com");
+            System.out.println(driver.getTitle());
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"GridFirefoxTest.java",prac:"Practical 5B",title:"Selenium Grid - remote test on Firefox (grid2)",aim:"Run a test script on the Selenium Grid hub using Firefox.",needs:JN+" Start the Grid first (see stqa_prac05_06_grid_commands.txt).",code:String.raw`package seleniumgrid;
+
+import java.net.URL;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class GridFirefoxTest {
+
+    public static void main(String[] args) {
+        WebDriver driver = null;
+        try {
+            URL gridURL = new URL("http://localhost:4444");
+            FirefoxOptions options = new FirefoxOptions();
+
+            driver = new RemoteWebDriver(gridURL, options);
+            driver.get("https://www.google.com");
+            System.out.println("Page Title: " + driver.getTitle());
+
+            driver.manage().window().maximize();
+            Thread.sleep(3000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (driver != null) {
+                driver.quit();
+            }
+        }
+    }
+}
+`},
+{file:"CrossBrowserGridTest.java",prac:"Practical 6",title:"Cross-browser testing with Selenium Grid",aim:"Run the same script on Chrome, Firefox and Edge through the Grid and compare execution time.",needs:JN+" Start the Grid first (see stqa_prac05_06_grid_commands.txt). A browser that is not installed on the node is reported and skipped.",code:String.raw`package seleniumgrid1;
+
+import java.net.URL;
+import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+public class CrossBrowserGridTest {
+
+    private static final String HUB_URL = "http://localhost:4444";
+
+    public static void main(String[] args) throws Exception {
+        String[] browsers = {"chrome", "firefox", "edge"};
+
+        for (String browser : browsers) {
+            Capabilities capabilities;
+            if (browser.equals("chrome")) {
+                capabilities = new ChromeOptions();
+            } else if (browser.equals("firefox")) {
+                capabilities = new FirefoxOptions();
+            } else {
+                capabilities = new EdgeOptions();
+            }
+
+            WebDriver driver = null;
+            try {
+                driver = new RemoteWebDriver(new URL(HUB_URL), capabilities);
+
+                long start = System.currentTimeMillis();
+                driver.get("https://www.selenium.dev/");
+                System.out.println(browser + " : " + driver.getTitle());
+                long time = System.currentTimeMillis() - start;
+                System.out.println("Time : " + time + " ms");
+            } catch (Exception e) {
+                System.out.println(browser + " : not available on the grid");
+            } finally {
+                if (driver != null) {
+                    driver.quit();
+                }
+            }
+        }
+    }
+}
+`},
+{file:"combobox.html",prac:"Practical 7A",title:"Combo box test page",aim:"HTML page with a drop-down list used by ComboBoxTest.java.",needs:"Save it in the project folder (same folder as the Eclipse project root). ComboBoxTest.java creates it automatically if it is missing.",code:String.raw`<html>
+<body>
+<select id="continents">
+<option value="Asia">Asia</option>
+<option value="Europe">Europe</option>
+<option value="Africa">Africa</option>
+</select>
+</body>
+</html>
+`},
+{file:"ComboBoxTest.java",prac:"Practical 7B",title:"List and combo box item verification",aim:"Count the items of a drop-down list, validate the default selected value and test item selection.",needs:JN,code:String.raw`package p7;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class ComboBoxTest {
+
+    private static final String DRIVER_PATH = "C:\\Users\\Student\\STQA\\geckodriver.exe";
+
+    public static void main(String[] args) throws Exception {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        File page = new File("combobox.html");
+        if (!page.exists()) {
+            String html = "<html><body><select id='continents'>"
+                    + "<option value='Asia'>Asia</option>"
+                    + "<option value='Europe'>Europe</option>"
+                    + "<option value='Africa'>Africa</option>"
+                    + "</select></body></html>";
+            Files.write(page.toPath(), html.getBytes(StandardCharsets.UTF_8));
+        }
+
+        WebDriver driver = new FirefoxDriver();
+        try {
+            driver.get(page.getAbsoluteFile().toURI().toString());
+
+            Select oSelect = new Select(driver.findElement(By.id("continents")));
+
+            List<WebElement> options = oSelect.getOptions();
+            int listSize = options.size();
+
+            for (int i = 0; i < listSize; i++) {
+                System.out.println(options.get(i).getText());
+            }
+            System.out.println("Total No. Items in Dropdown: " + listSize);
+
+            System.out.println("Default selected value: " + oSelect.getFirstSelectedOption().getText());
+
+            oSelect.selectByVisibleText("Europe");
+            String selected = oSelect.getFirstSelectedOption().getText();
+            if (selected.equals("Europe")) {
+                System.out.println("Selection test passed: " + selected);
+            } else {
+                System.out.println("Selection test failed: " + selected);
+            }
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"checkboxes.html",prac:"Practical 8A",title:"Checkbox test page",aim:"HTML page with four checkboxes used by CheckBoxTest.java.",needs:"Save it in the project folder. CheckBoxTest.java creates it automatically if it is missing.",code:String.raw`<html>
+<body>
+<input type="checkbox"> Java<br>
+<input type="checkbox"> Selenium<br>
+<input type="checkbox"> Python<br>
+<input type="checkbox"> HTML<br>
+</body>
+</html>
+`},
+{file:"CheckBoxTest.java",prac:"Practical 8B",title:"Checkbox identification and validation",aim:"Count checked and unchecked checkboxes, select the unchecked ones and validate the result.",needs:JN,code:String.raw`package p8;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public class CheckBoxTest {
+
+    private static final String DRIVER_PATH = "C:\\Users\\Student\\STQA\\geckodriver.exe";
+
+    public static void main(String[] args) throws Exception {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        File page = new File("checkboxes.html");
+        if (!page.exists()) {
+            String html = "<html><body>"
+                    + "<input type='checkbox'> Java<br>"
+                    + "<input type='checkbox'> Selenium<br>"
+                    + "<input type='checkbox'> Python<br>"
+                    + "<input type='checkbox'> HTML<br>"
+                    + "</body></html>";
+            Files.write(page.toPath(), html.getBytes(StandardCharsets.UTF_8));
+        }
+
+        WebDriver driver = new FirefoxDriver();
+        try {
+            driver.get(page.getAbsoluteFile().toURI().toString());
+
+            List<WebElement> checkboxes = driver.findElements(By.xpath("//input[@type='checkbox']"));
+
+            int checked = 0;
+            int unchecked = 0;
+            for (WebElement checkbox : checkboxes) {
+                if (checkbox.isSelected()) {
+                    checked++;
+                } else {
+                    unchecked++;
+                }
+            }
+
+            System.out.println("Total : " + checkboxes.size());
+            System.out.println("Checked : " + checked);
+            System.out.println("Unchecked : " + unchecked);
+
+            for (WebElement checkbox : checkboxes) {
+                if (!checkbox.isSelected()) {
+                    checkbox.click();
+                    if (checkbox.isSelected()) {
+                        System.out.println("Checkbox selected successfully");
+                    } else {
+                        System.out.println("Checkbox selection failed");
+                    }
+                }
+            }
+
+            int nowChecked = 0;
+            for (WebElement checkbox : checkboxes) {
+                if (checkbox.isSelected()) {
+                    nowChecked++;
+                }
+            }
+            System.out.println("Checked after selection : " + nowChecked + " of " + checkboxes.size());
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"DynamicTableTest.java",prac:"Practical 9",title:"Dynamic web table handling and sorting validation",aim:"Extract data from a dynamic web table and validate that column sorting works correctly.",needs:JN+" Needs an internet connection.",code:String.raw`package p9;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public class DynamicTableTest {
+
+    private static final String DRIVER_PATH = "C:\\Users\\Student\\STQA\\geckodriver.exe";
+
+    public static void main(String[] args) {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        WebDriver driver = new FirefoxDriver();
+        try {
+            driver.get("https://the-internet.herokuapp.com/tables");
+
+            List<WebElement> rows = driver.findElements(By.cssSelector("#table1 tbody tr"));
+            System.out.println("Table data before sorting:");
+            for (WebElement row : rows) {
+                System.out.println(row.getText());
+            }
+
+            driver.findElement(By.cssSelector("#table1 thead th:nth-child(1)")).click();
+
+            rows = driver.findElements(By.cssSelector("#table1 tbody tr"));
+            List<String> actual = new ArrayList<String>();
+            for (WebElement row : rows) {
+                actual.add(row.findElements(By.tagName("td")).get(0).getText());
+            }
+
+            List<String> expected = new ArrayList<String>(actual);
+            Collections.sort(expected);
+
+            System.out.println("Column values after clicking the header: " + actual);
+            if (actual.equals(expected)) {
+                System.out.println("Sorting : PASS");
+            } else {
+                System.out.println("Sorting : FAIL");
+            }
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"FileUploadTest.java",prac:"Practical 10",title:"File upload and download automation",aim:"Upload a file with WebDriver, validate that the upload succeeded and check the file appears in the downloader.",needs:JN+" Needs an internet connection. The program creates upload.txt itself in the temp folder.",code:String.raw`package practical10;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.time.Duration;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class FileUploadTest {
+
+    private static final String DRIVER_PATH = "C:\\Users\\Student\\STQA\\geckodriver.exe";
+
+    public static void main(String[] args) throws Exception {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        File uploadFile = new File(System.getProperty("java.io.tmpdir"), "upload.txt");
+        Files.write(uploadFile.toPath(), "Hello from the upload test".getBytes(StandardCharsets.UTF_8));
+
+        WebDriver driver = new FirefoxDriver();
+        try {
+            driver.get("https://the-internet.herokuapp.com/upload");
+
+            driver.findElement(By.id("file-upload")).sendKeys(uploadFile.getAbsolutePath());
+            driver.findElement(By.id("file-submit")).click();
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("uploaded-files")));
+
+            String uploadedName = driver.findElement(By.id("uploaded-files")).getText().trim();
+            if (uploadedName.equals(uploadFile.getName())) {
+                System.out.println("Upload Successful: " + uploadedName);
+            } else {
+                System.out.println("Upload Failed: " + uploadedName);
+            }
+
+            driver.get("https://the-internet.herokuapp.com/download");
+            boolean listed = !driver.findElements(By.linkText(uploadFile.getName())).isEmpty();
+            if (listed) {
+                System.out.println("File is listed in the File Downloader page.");
+            } else {
+                System.out.println("File is not listed in the File Downloader page.");
+            }
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"log4j.properties",prac:"Practical 11A",title:"log4j configuration",aim:"log4j settings that write logs to the console and to Execution.log.",needs:"Create it in the src folder of the Eclipse project (right-click src > New > File > log4j.properties). Add the log4j 1.2.17 JAR to the Build Path.",code:String.raw`log4j.rootLogger=INFO, file, console
+
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+log4j.appender.console.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n
+
+log4j.appender.file=org.apache.log4j.FileAppender
+log4j.appender.file.File=Execution.log
+log4j.appender.file.layout=org.apache.log4j.PatternLayout
+log4j.appender.file.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n
+`},
+{file:"ScreenshotLogTest.java",prac:"Practical 11B",title:"Screenshot capture and log4j logging",aim:"Capture a screenshot on test failure and generate execution logs with log4j.",needs:JN+" Add the log4j 1.2.17 JAR and create log4j.properties first. Logs go to Execution.log and the screenshot to failure.png in the project folder.",code:String.raw`package pract11;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import org.apache.log4j.Logger;
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public class ScreenshotLogTest {
+
+    private static final Logger log = Logger.getLogger(ScreenshotLogTest.class);
+    private static final String DRIVER_PATH = "C:\\Program Files\\Mozilla Firefox\\geckodriver.exe";
+
+    public static void main(String[] args) {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        WebDriver d = new FirefoxDriver();
+        try {
+            log.info("Test started");
+            d.get("https://the-internet.herokuapp.com/login");
+            log.info("Website opened");
+
+            d.findElement(By.id("username")).sendKeys("tomsmith");
+            d.findElement(By.id("password")).sendKeys("SuperSecretPassword!");
+            d.findElement(By.cssSelector("button[type='submit']")).click();
+            log.info("Login successful");
+
+            d.findElement(By.id("wrongElement"));
+        } catch (Exception e) {
+            log.error("Test failed: " + e.getMessage());
+            try {
+                File src = ((TakesScreenshot) d).getScreenshotAs(OutputType.FILE);
+                File dest = new File("failure.png");
+                Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                log.info("Screenshot saved: " + dest.getAbsolutePath());
+            } catch (Exception ex) {
+                log.error("Screenshot could not be saved: " + ex.getMessage());
+            }
+        } finally {
+            d.quit();
+            log.info("Browser closed");
+            log.info("Test completed");
+        }
+    }
+}
+`},
+{file:"WebInteractionTest.java",prac:"Practical 12",title:"Web element interaction and synchronization",aim:"Handle textbox, radio button, checkbox, drop-down, alert and frame with implicit and explicit waits.",needs:JN+" The program opens its own test page, so no website or internet is needed.",code:String.raw`package pkg12;
+
+import java.io.File;
+import java.net.URLEncoder;
+import java.time.Duration;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class WebInteractionTest {
+
+    private static final String DRIVER_PATH = "C:\\Users\\Student\\STQA\\geckodriver.exe";
+
+    public static void main(String[] args) throws Exception {
+        File gecko = new File(DRIVER_PATH);
+        if (gecko.exists()) {
+            System.setProperty("webdriver.gecko.driver", gecko.getAbsolutePath());
+        }
+
+        String html = "<html><body>"
+                + "<h2>Practice Form</h2>"
+                + "<input id='name' type='text'><br>"
+                + "<input type='radio' name='gender' id='male'> Male "
+                + "<input type='radio' name='gender' id='female'> Female<br>"
+                + "<input type='checkbox' id='terms'> Accept terms<br>"
+                + "<select id='country'><option>India</option><option>USA</option><option>UK</option></select><br>"
+                + "<button id='alertButton' onclick=\"alert('Hello from alert')\">Show Alert</button>"
+                + "<button id='delayButton' onclick=\"setTimeout(function(){document.getElementById('late').style.display='block';},2000)\">Show Message</button>"
+                + "<p id='late' style='display:none'>Message loaded after delay</p>"
+                + "<iframe id='myFrame' srcdoc=\"<input id='frameTextbox'>\"></iframe>"
+                + "</body></html>";
+        String url = "data:text/html;charset=utf-8," + URLEncoder.encode(html, "UTF-8").replace("+", "%20");
+
+        WebDriver driver = new FirefoxDriver();
+        try {
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+            driver.get(url);
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("name"))).sendKeys("Admin");
+            driver.findElement(By.id("female")).click();
+            driver.findElement(By.id("terms")).click();
+
+            Select country = new Select(driver.findElement(By.id("country")));
+            country.selectByVisibleText("India");
+            System.out.println("Selected country : " + country.getFirstSelectedOption().getText());
+
+            driver.findElement(By.id("alertButton")).click();
+            Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+            System.out.println("Alert text : " + alert.getText());
+            alert.accept();
+
+            driver.findElement(By.id("delayButton")).click();
+            String message = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("late"))).getText();
+            System.out.println("Explicit wait message : " + message);
+
+            wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.id("myFrame")));
+            driver.findElement(By.id("frameTextbox")).sendKeys("Hello Frame");
+            driver.switchTo().defaultContent();
+
+            System.out.println("All interactions completed successfully");
+        } finally {
+            driver.quit();
+        }
+    }
+}
+`},
+{file:"ExcelReader.java",prac:"Practical 13",title:"Data extraction from an Excel (.xls) file with JXL",aim:"Read student marks from a worksheet and count the students who scored more than 60 in one or more subjects.",needs:"Needs JDK, Eclipse and the jxl JAR (jxl-2.6.12.jar) added to the Build Path. If student.xls is missing, the program creates a sample file in the project folder (columns: Name, Maths, Science, English).",code:String.raw`package excelread;
+
+import java.io.File;
+import java.io.IOException;
+import jxl.Cell;
+import jxl.CellType;
+import jxl.JXLException;
+import jxl.NumberCell;
+import jxl.Sheet;
+import jxl.Workbook;
+import jxl.read.biff.BiffException;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+
+public class ExcelReader {
+
+    private String inputFile;
+
+    public void setInputFile(String inputFile) {
+        this.inputFile = inputFile;
+    }
+
+    public void createSampleFile() throws IOException, JXLException {
+        File file = new File(inputFile);
+        if (file.exists()) {
+            return;
+        }
+
+        WritableWorkbook workbook = Workbook.createWorkbook(file);
+        WritableSheet sheet = workbook.createSheet("Marks", 0);
+
+        String[] header = {"Name", "Maths", "Science", "English"};
+        for (int c = 0; c < header.length; c++) {
+            sheet.addCell(new Label(c, 0, header[c]));
+        }
+
+        String[] names = {"Amit", "Sara", "John", "Priya", "Ravi"};
+        int[][] marks = {
+            {75, 55, 40},
+            {45, 50, 52},
+            {35, 61, 48},
+            {90, 85, 70},
+            {30, 40, 55}
+        };
+
+        for (int r = 0; r < names.length; r++) {
+            sheet.addCell(new Label(0, r + 1, names[r]));
+            for (int c = 0; c < marks[r].length; c++) {
+                sheet.addCell(new jxl.write.Number(c + 1, r + 1, marks[r][c]));
+            }
+        }
+
+        workbook.write();
+        workbook.close();
+    }
+
+    public void read() throws IOException {
+        Workbook workbook = null;
+        int count = 0;
+        try {
+            workbook = Workbook.getWorkbook(new File(inputFile));
+            Sheet sheet = workbook.getSheet(0);
+
+            for (int row = 1; row < sheet.getRows(); row++) {
+                for (int col = 1; col < sheet.getColumns(); col++) {
+                    Cell cell = sheet.getCell(col, row);
+                    if (cell.getType() == CellType.NUMBER) {
+                        double marks = ((NumberCell) cell).getValue();
+                        if (marks > 60) {
+                            count++;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            System.out.println("Total number of students who scored more than 60 in one or more subjects: " + count);
+        } catch (BiffException e) {
+            e.printStackTrace();
+        } finally {
+            if (workbook != null) {
+                workbook.close();
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IOException, JXLException {
+        ExcelReader test = new ExcelReader();
+        test.setInputFile("student.xls");
+        test.createSampleFile();
+        test.read();
+    }
+}
+`},
+{file:"stqa_prac14_jmeter_steps.txt",prac:"Practical 14",title:"Load testing using Apache JMeter (steps)",aim:"Design and run a load test: thread group, ramp-up time, loop count; view results.",needs:"No code. Needs JDK and Apache JMeter.",code:String.raw`Pre-requisites
+1. Download the JDK (journal: jdk-19.0.2_windows-x64_bin.exe) from the official website and install it.
+2. Download Apache JMeter:
+   - Open https://jmeter.apache.org/download_jmeter.cgi
+   - Under Apache JMeter 5.5.1 (requires Java 8+), in the Binaries sub-section, download apache-jmeter-5.5.1.zip
+3. Installation: extract the zip file. Go to apache-jmeter-5.5.1 > bin. ApacheJMeter.jar in this folder is your working file.
+
+Steps
+1. Open ApacheJMeter.jar and name your Test Plan.
+2. Save the test plan. It is saved with the .jmx extension.
+3. Create a Thread Group: right-click the Test Plan > Add > Threads (Users) > Thread Group. Name it myThread1.
+4. Under the thread group add a sampler: right-click myThread1 > Add > Sampler > HTTP Request.
+5. Visit any web page that has a path. Example: lifecharger.org/when-in-doubt-do-this/
+   In the HTTP Request set:
+   Server Name or IP : lifecharger.org
+   Path              : /when-in-doubt-do-this/
+6. Under the HTTP Request sampler add 2 listeners:
+   - Right-click HTTP Request > Add > Listener > View Results Tree
+   - Right-click HTTP Request > Add > Listener > View Results in Table
+7. Save and run the file and wait for a while. You will see some outputs.
+8. Now change some Thread Group properties: Number of Threads (users) = 10, Ramp-up period = 20, Loop Count = Forever.
+9. Save and run the file again and wait for a while. You will see continuous outputs. Click the Stop button to end the test.
+10. Finish.
+`},
+{file:"stqa_prac14_load_test_plan.jmx",prac:"Practical 14 (code)",title:"JMeter load test plan (.jmx)",aim:"Ready-made JMeter test plan: Thread Group myThread1, HTTP Request to lifecharger.org, View Results Tree and View Results in Table.",needs:"Open it in JMeter: File > Open. It uses 10 users, ramp-up 20 seconds, loop count 5. To run forever as in the journal, tick Infinite in the Loop Count box. Command line run: jmeter -n -t stqa_prac14_load_test_plan.jmx -l results.jtl",code:String.raw`<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.5">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Load Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="myThread1" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">5</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">10</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">20</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+      <hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">lifecharger.org</stringProp>
+          <stringProp name="HTTPSampler.port"></stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
+          <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+          <stringProp name="HTTPSampler.path">/when-in-doubt-do-this/</stringProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+        </HTTPSamplerProxy>
+        <hashTree/>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+        <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
+`}
+];
+
+const SUBJECTS = [
+  {name:"Artificial Intelligence", items:AI},
+  {name:"Business Analytics (EDA)", items:EDA},
+  {name:"Cyber & Information Security (CIS)", items:CIS},
+  {name:"Software Testing & QA (STQA)", items:STQA}
+];
+let P = AI;
+
+const list = document.getElementById('list'), view = document.getElementById('view'), q = document.getElementById('q');
+let cur = 0;
+let DL = null;
+function showDownload(){ return (typeof window.claude === 'undefined') || !!DL; }
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderList(){
+  const t = q.value.trim().toLowerCase();
+  list.innerHTML = '';
+  P.forEach((p,i)=>{
+    if (t && !(p.file+p.title+p.prac).toLowerCase().includes(t)) return;
+    const b = document.createElement('button');
+    b.className = 'item' + (i===cur ? ' on' : '');
+    b.innerHTML = '<b>' + esc(p.prac) + '</b> - ' + esc(p.title) + '<small>' + esc(p.file) + '</small>';
+    b.onclick = ()=>{cur = i; renderList(); renderView(); window.scrollTo(0,0);};
+    list.appendChild(b);
+  });
+}
+
+function renderView(){
+  const p = P[cur];
+  let body = '<pre><code>' + esc(p.code) + '</code></pre>';
+  if (p.data) {
+    const rows = p.code.trim().split('\n').map(l => l.split(','));
+    const head = rows[0];
+    let t = '<p class="meta"><b>' + (rows.length - 1) + ' rows x ' + head.length + ' columns</b></p><div class="tbl"><table><thead><tr><th>#</th>';
+    head.forEach(c => { t += '<th>' + esc(c) + '</th>'; });
+    t += '</tr></thead><tbody>';
+    for (let r = 1; r < rows.length; r++) {
+      t += '<tr><td>' + r + '</td>';
+      rows[r].forEach(c => { t += '<td>' + esc(c) + '</td>'; });
+      t += '</tr>';
+    }
+    body = t + '</tbody></table></div>';
+  }
+  view.innerHTML =
+    '<h2>' + esc(p.prac) + ': ' + esc(p.title) + '</h2>' +
+    '<p class="meta">Aim: ' + esc(p.aim) + '</p>' +
+    '<p class="meta">File name: <span class="fn">' + esc(p.file) + '</span></p>' +
+    '<p class="meta">' + esc(p.needs) + '</p>' +
+    '<div class="bar"><button class="act" id="cp">Copy code</button>' +
+    (showDownload() ? '<button class="act alt" id="dl">Download file</button>' : '') + '</div>' +
+    body;
+  document.getElementById('cp').onclick = async (e)=>{
+    try { await navigator.clipboard.writeText(p.code); }
+    catch(_) {
+      const ta = document.createElement('textarea'); ta.value = p.code; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); ta.remove();
+    }
+    e.target.textContent = 'Copied!'; setTimeout(()=>e.target.textContent='Copy code', 1500);
+  };
+  const dlb = document.getElementById('dl');
+  if (dlb) dlb.onclick = async (e)=>{
+    const btn = e.target;
+    if (DL) {
+      const okExt = /\.(txt|json|md|csv|html|svg|pdf|zip)$/i.test(p.file);
+      const name = okExt ? p.file : p.file + '.txt';
+      try {
+        await DL.save({filename: name, data: p.code});
+        btn.textContent = okExt ? 'Saved' : 'Saved as .txt - remove the .txt';
+      } catch (err) {
+        if (!err || err.code !== 'declined') btn.textContent = 'Download unavailable';
+      }
+      setTimeout(()=>{ btn.textContent = 'Download file'; }, 2500);
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([p.code], {type:p.data?'text/csv':'text/plain'}));
+    a.download = p.file; document.body.appendChild(a); a.click(); a.remove();
+  };
+}
+
+const subj = document.getElementById('subj');
+SUBJECTS.forEach((x,i)=>{const o=document.createElement('option');o.value=i;o.textContent=x.name+' ('+x.items.length+' files)';subj.appendChild(o);});
+subj.onchange = ()=>{P = SUBJECTS[subj.value].items; cur = 0; q.value = ''; renderList(); renderView();};
+q.addEventListener('input', renderList);
+renderList(); renderView();
+(async ()=>{
+  try { if (window.claude && window.claude.use) { DL = await window.claude.use('downloads'); } } catch (_) { DL = null; }
+  renderView();
+})();
+</script>
+</body>
+</html>
